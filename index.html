@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1220"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Мой спорт"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-180.png"><title>Мой спорт — трекер</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#eef4fb;background:#0b1220;font-size:15px}*{box-sizing:border-box}body{margin:0;padding:0 0 90px}button,input,textarea,select{font:inherit}button{cursor:pointer}.app{max-width:740px;margin:auto;padding:22px 15px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-size:23px;font-weight:800;letter-spacing:-.8px}.muted{color:#94a4b9}.small{font-size:12px}.pill{background:#18334b;color:#a6dbfa;border-radius:50px;padding:7px 12px;font-size:12px}.tabs{position:fixed;bottom:0;left:0;width:100%;background:#101d2d;border-top:1px solid #25364a;z-index:10;display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}.tabs>div{max-width:740px;width:100%;display:grid;grid-template-columns:repeat(6,1fr)}.tab{border:0;background:transparent;color:#9dafc2;padding:13px 4px 12px;font-size:12px}.tab.active{color:#75d8bc;font-weight:800}.tab b{display:block;font-size:20px;margin-bottom:3px}.card{background:#152235;border:1px solid #24354a;border-radius:17px;padding:16px;margin:12px 0}.section{font-size:19px;font-weight:800;margin:24px 0 10px}.hero{padding:21px 18px;background:linear-gradient(135deg,#1c3b50,#17302e);border:1px solid #2e5a58;border-radius:20px}.hero h2{font-size:23px;margin:5px 0}.big{font-size:31px;font-weight:800}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.grow{flex:1}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.btn{border:0;border-radius:12px;padding:12px 16px;background:#74d6b9;color:#09221e;font-weight:800}.btn.secondary{background:#24384f;color:#e3edf9}.btn.ghost{background:none;color:#8ddaca;padding:7px}.btn.danger{background:#4b2938;color:#ffb9bd}.btn:disabled{opacity:.45}.full{width:100%}input,textarea,select{background:#0e1929;border:1px solid #34465c;border-radius:11px;color:#fff;min-width:0;padding:11px;outline:none}input:focus,textarea:focus{border-color:#76d8bf}input[type=number]{width:100%}textarea{width:100%;min-height:62px;resize:vertical}.label{color:#9cabbd;font-size:12px;margin-bottom:5px}.exercise{margin:12px 0;border:1px solid #304358;border-radius:15px;padding:13px;background:#122033}.exercise-title{font-weight:800;font-size:16px}.ex-top{display:flex;justify-content:space-between;gap:8px;align-items:start}.sethead,.setrow{display:grid;grid-template-columns:26px 1fr 1fr 1fr;gap:7px;align-items:center}.sethead{font-size:11px;color:#93a6b9;margin:12px 0 5px}.setrow{margin-bottom:7px}.setrow input{padding:10px 4px;text-align:center}.num{color:#a6b8cb;text-align:center}.hint{font-size:12px;color:#a8b8c9;margin-top:7px;line-height:1.45}.history-item{border-bottom:1px solid #27384b;padding:13px 0}.history-item:last-child{border-bottom:0}.hidden{display:none!important}.editgrid{display:grid;grid-template-columns:1fr 94px;gap:9px;margin:10px 0}.stat{background:#17283a;border-radius:13px;padding:14px}.stat strong{font-size:24px;display:block;margin-top:5px}.notice{background:#1d3040;border-left:3px solid #73cbb1;padding:12px;border-radius:8px;font-size:13px;line-height:1.5}.tools{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.right{text-align:right}.titleline{margin:0 0 7px}.compact{margin:6px 0}.status{font-size:12px;min-height:16px;color:#7de2c1;margin-top:7px}details summary{cursor:pointer;color:#99d9c6;font-size:13px;margin:10px 0}.empty{color:#9cacc1;padding:24px 4px;text-align:center}.badge{font-size:11px;border:1px solid #426677;border-radius:7px;padding:4px 7px;color:#abdfe0}.footer{font-size:11px;color:#7b91a9;text-align:center;margin-top:30px;line-height:1.5}@media(max-width:390px){.app{padding:17px 10px}.card{padding:12px}.exercise{padding:10px}.btn{padding:11px 10px}.brand{font-size:20px}}
+.private-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.private-choice{min-height:120px;text-align:left;line-height:1.25;padding:14px 14px 12px;border:1px solid #334760;display:flex;flex-direction:column;justify-content:space-between;transition:transform .12s ease,filter .12s ease,box-shadow .12s ease}.private-choice:active{transform:scale(.98)}.private-choice:hover{filter:brightness(1.05)}.private-choice .icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;font-size:24px;margin-bottom:10px;background:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.private-choice .main{display:block;font-size:15px;font-weight:800}.private-choice span{display:block;font-size:12px;opacity:.8;font-weight:500;margin-top:6px}.private-choice.sex{background:linear-gradient(135deg,#5b2741,#7a3453);border-color:#93506b;color:#fff}.private-choice.solo{background:linear-gradient(135deg,#2a3557,#3a4771);border-color:#56668d;color:#fff}.private-choice.partner{background:linear-gradient(135deg,#4b2f5c,#6a3d7b);border-color:#87539b;color:#fff}.private-hero{background:linear-gradient(135deg,#341f3e,#1f2a4a);border:1px solid #4c4e7a}.private-hero .hint{color:#c4c9de}.calendar-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}.calendar-actions{display:flex;gap:7px}.calendar-nav{border:1px solid #3e4b63;border-radius:10px;background:#28344c;color:#e6e9f5;padding:6px 12px;font-weight:800;min-width:37px}.calendar-nav:disabled{opacity:.25}.calendar-week,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.calendar-week{margin-bottom:6px}.calendar-week span{text-align:center;font-size:11px;color:#99a6ba}.calendar-day{position:relative;min-height:67px;border:1px solid #293a50;background:#142337;border-radius:11px;color:#dbe6f3;padding:5px 2px 4px;display:flex;align-items:center;flex-direction:column;gap:3px;overflow:hidden}.calendar-day:disabled{opacity:.35}.calendar-day.empty{visibility:hidden}.calendar-day.today{border-color:#76d8bf}.calendar-day.selected{background:#30465c;border-color:#99e5d1;box-shadow:inset 0 0 0 1px #99e5d1}.calendar-date{font-size:12px;font-weight:700}.calendar-symbols{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;line-height:1;font-size:15px;min-height:16px}.calendar-multiple{font-size:10px;color:#a9c6d9;font-weight:800}.streak-note{margin-top:10px;font-size:12px;color:#a7b4c9;line-height:1.45}@media(max-width:390px){.calendar-day{min-height:59px}.calendar-symbols{font-size:13px}.calendar-week,.calendar-grid{gap:3px}}.mini-bars{display:flex;height:9px;overflow:hidden;border-radius:15px;background:#25374a;margin:9px 0 4px}.mini-bar{background:#74d6b9;min-width:0}.private-row{padding:10px 0;border-bottom:1px solid #2b3c50}.saved-entry{margin:14px 0 12px;padding:12px;border-radius:12px;background:#15283a;overflow-wrap:anywhere}@media(max-width:390px){.private-choice{min-height:110px;padding:12px}.private-choice .icon{width:38px;height:38px;font-size:21px}}
+.measure-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.measure-box{background:#122235;border:1px solid #2b4256;border-radius:13px;padding:11px}.measure-box input{width:100%}.measure-badge{color:#a6dbfa;font-size:12px;background:#1c354b;border-radius:20px;padding:5px 10px}.measure-delta{font-size:12px;color:#aab9ce}.measure-delta.good{color:#76dcbb}.measure-chart{width:100%;height:auto;display:block}.measure-select{max-width:100%;width:100%}.measure-chart text{font-size:11px;fill:#aabace}.measure-chart polyline{fill:none;stroke:#78d7c0;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.measure-chart circle{fill:#84e0c7}.measure-reminder{background:linear-gradient(120deg,#163d48,#21304c);border:1px solid #355b68;border-radius:14px;padding:14px;margin-top:12px}@media(max-width:380px){.tab{font-size:10px}.tab b{font-size:18px}.measure-fields{gap:7px}.measure-box{padding:8px}}
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Бассейн · Шаги</div></div><span class="pill">Версия 3.0</span></header>
+<section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
+<div class="footer">Данные остаются на этом устройстве. Личные записи шифруются паролем, спортивные данные — нет. Делай резервные копии.</div></main>
+<nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
+<script>
+'use strict';
+const KEY='my_sport_v1';
+const defaults={
+ 'Upper A':[
+  {name:'Жим гантелей на наклонной скамье',weight:'',sets:3,goal:'8–12'},
+  {name:'Тяга верхнего блока',weight:'55',sets:3,goal:'8–12'},
+  {name:'Горизонтальная тяга блока',weight:'50',sets:3,goal:'8–12'},
+  {name:'Жим плеч в тренажёре',weight:'32',sets:2,goal:'8–12'},
+  {name:'Разгибание рук с канатом',weight:'17.5',sets:2,goal:'10–15'},
+  {name:'Подъём гантелей на бицепс',weight:'12',sets:2,goal:'10–15'}],
+ 'Lower A':[
+  {name:'Приседания со штангой',weight:'60',sets:3,goal:'8–10'},
+  {name:'Румынская тяга',weight:'60',sets:3,goal:'8–12'},
+  {name:'Жим ногами',weight:'100',sets:2,goal:'10–12'},
+  {name:'Сгибание ног в тренажёре',weight:'64',sets:3,goal:'10–12'},
+  {name:'Икры сидя',weight:'30',sets:3,goal:'12–15'}],
+ 'Upper B':[
+  {name:'Жим гантелей лёжа',weight:'',sets:3,goal:'8–12'},
+  {name:'Тяга верхнего блока',weight:'55',sets:3,goal:'8–12'},
+  {name:'Тяга горизонтального блока',weight:'50',sets:3,goal:'8–12'},
+  {name:'Жим в грудном тренажёре',weight:'',sets:2,goal:'8–12'},
+  {name:'Разведения гантелей в стороны',weight:'7',sets:2,goal:'12–15'},
+  {name:'Сгибание рук на бицепс',weight:'12',sets:2,goal:'10–15'},
+  {name:'Трицепс на блоке',weight:'17.5',sets:2,goal:'10–15'}],
+ 'Lower B':[
+  {name:'Приседания со штангой',weight:'60',sets:3,goal:'8–10'},
+  {name:'Румынская тяга',weight:'60',sets:3,goal:'8–12'},
+  {name:'Жим ногами',weight:'100',sets:3,goal:'10–12'},
+  {name:'Сгибание ног в тренажёре',weight:'59',sets:3,goal:'10–15'},
+  {name:'Икры сидя',weight:'30',sets:3,goal:'12–15'}]
+};
+const copy=x=>JSON.parse(JSON.stringify(x));
+function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
+let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.templates)throw Error('Invalid');}catch(e){data=initial()}
+let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('Не удалось сохранить данные в браузере. Скопируй резервную копию.');return false}}
+function today(){return new Date().toLocaleDateString('sv-SE')}
+function fmt(d){if(!d)return '';let a=d.split('-');return a.length===3?`${a[2]}.${a[1]}.${a[0]}`:d}
+function selectTab(t){tab=t;document.querySelectorAll('main section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));render();window.scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
+function render(){renderHome();renderTrain();renderActivity();renderRecords();renderMeasurements();renderPrivate()}
+function count(){return data.workouts.length}
+function renderHome(){const recent=data.workouts[0];const recentPool=data.pool[0];const recentSteps=data.steps[0];$('#home').innerHTML=`<div class="hero"><div class="muted small">Твой текущий ориентир</div><h2>Возвращаем регулярность</h2><div class="row between"><div><span class="big">87</span> кг<br><span class="small muted">Ориентир: 86–88 кг</span></div><div class="right"><span class="big">${count()}</span><br><span class="small muted">силовых записано</span></div></div></div><h3 class="section">Быстрый старт</h3><div class="grid">${Object.keys(data.templates).map(n=>`<button class="card" style="text-align:left;margin:0;color:#fff" onclick="goWorkout('${n}')"><div class="muted small">${n.startsWith('Upper')?'Верх тела':'Низ тела'}</div><h3 class="compact">${n}</h3><span class="small" style="color:#80ddbd">Начать →</span></button>`).join('')}</div><h3 class="section">Последняя активность</h3><div class="card">${recent?`<div class="row between"><div><b>${esc(recent.name)}</b><div class="muted small">${fmt(recent.date)} · ${recent.exercises.length} упражнений</div></div><span class="badge">Сохранено</span></div>`:'<div class="muted">Пока нет силовых тренировок</div>'}<hr style="border:0;border-top:1px solid #2e4154;margin:14px 0"><div class="row between"><div>Бассейн</div><div class="muted">${recentPool?fmt(recentPool.date)+' · '+recentPool.distance+' м':'Нет записей'}</div></div><div class="row between" style="margin-top:12px"><div>Шаги</div><div class="muted">${recentSteps?fmt(recentSteps.date)+' · '+Number(recentSteps.count).toLocaleString('ru-RU'):'Нет записей'}</div></div></div><div class="notice">Первые 2 недели: 2 облегчённые силовые + бассейн в субботу. Когда войдёшь в ритм — вернём 4 силовые.</div>`}
+window.goWorkout=n=>{data.current=n;save();selectTab('train')};
+function getDraft(){let name=data.current;if(!data.drafts[name])data.drafts[name]={date:today(),exercises:data.templates[name].map(e=>({...copy(e),reps:Array(e.sets).fill(''),rirs:Array(e.sets).fill(''),comment:''})),comment:''};return data.drafts[name]}
+function setCurrent(n){data.current=n;save();renderTrain()}
+function renderTrain(){const name=data.current,d=getDraft();$('#train').innerHTML=`<h2 class="titleline">Силовая тренировка</h2><div class="muted small">Выбери шаблон и введи только повторения и RIR</div><div class="grid" style="margin-top:13px">${Object.keys(data.templates).map(n=>`<button class="btn ${n===name?'':'secondary'}" onclick="setCurrent('${n}')">${n}</button>`).join('')}</div><div class="card"><div class="row between"><div><b>${name}</b><div class="muted small">${d.exercises.length} упражнений · веса можно менять</div></div><input aria-label="Дата тренировки" type="date" value="${esc(d.date)}" onchange="changeDate(this.value)" style="max-width:155px"></div>${d.exercises.map((ex,i)=>`<div class="exercise"><div class="ex-top"><div class="exercise-title">${i+1}. ${esc(ex.name)}</div><button class="btn ghost" onclick="editExercise(${i})" aria-label="Изменить упражнение">✎</button></div><div class="row" style="margin-top:9px"><div class="grow"><div class="label">Рабочий вес, кг</div><input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(ex.weight)}" placeholder="Укажи" onchange="setWeight(${i},this.value)"></div><div class="grow"><div class="label">Цель</div><div class="pill" style="display:inline-block;margin:8px 0">${esc(ex.goal)} повт.</div></div></div><div class="sethead"><div>№</div><div>Повт.</div><div>RIR</div><div>План</div></div>${ex.reps.map((v,j)=>`<div class="setrow"><div class="num">${j+1}</div><input aria-label="Повторения ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="100" placeholder="—" value="${esc(v)}" onchange="setRep(${i},${j},this.value)"><input aria-label="Запас ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="10" placeholder="—" value="${esc(ex.rirs[j])}" onchange="setRir(${i},${j},this.value)"><div class="num">${esc(ex.goal)}</div></div>`).join('')}<textarea placeholder="Комментарий: легко, дискомфорт, техника…" aria-label="Комментарий к упражнению" oninput="setExComment(${i},this.value)">${esc(ex.comment)}</textarea><div class="row between"><span class="hint">RIR — сколько повторений осталось в запасе</span><button class="btn ghost" onclick="addSet(${i})">+ подход</button></div></div>`).join('')}<div class="label">Общий комментарий к тренировке</div><textarea placeholder="Самочувствие, восстановление, настроение" oninput="setComment(this.value)">${esc(d.comment)}</textarea><div class="tools"><button class="btn grow" onclick="finishWorkout()">✓ Завершить и сохранить</button><button class="btn secondary" onclick="resetDraft()">Сбросить черновик</button></div><div class="status">Все изменения черновика сохраняются автоматически на устройстве.</div></div><details class="card"><summary>Настроить упражнения и шаблон</summary><div class="hint">Рабочие веса из сентября — ориентиры, не обязательные нагрузки после перерыва. Изменения упражнения можно сохранить в шаблон.</div><button class="btn secondary full" onclick="addExercise()">+ Добавить упражнение</button></details>`}
+window.setCurrent=setCurrent;window.changeDate=v=>{getDraft().date=v;save()};window.setWeight=(i,v)=>{getDraft().exercises[i].weight=v;save()};window.setRep=(i,j,v)=>{getDraft().exercises[i].reps[j]=v;save()};window.setRir=(i,j,v)=>{getDraft().exercises[i].rirs[j]=v;save()};window.setExComment=(i,v)=>{getDraft().exercises[i].comment=v;save()};window.setComment=v=>{getDraft().comment=v;save()};
+window.addSet=i=>{let e=getDraft().exercises[i];e.reps.push('');e.rirs.push('');e.sets++;save();renderTrain()};
+window.editExercise=i=>{let d=getDraft(),e=d.exercises[i];let name=prompt('Название упражнения:',e.name);if(name===null)return;if(!name.trim())return alert('Название не может быть пустым');let sets=prompt('Число подходов:',e.sets);if(sets===null)return;sets=Number(sets);if(!Number.isInteger(sets)||sets<1||sets>8)return alert('От 1 до 8 подходов');let goal=prompt('Диапазон повторений:',e.goal);if(goal===null)return;e.name=name.trim();e.goal=goal;e.sets=sets;e.reps=Array.from({length:sets},(_,j)=>e.reps[j]||'');e.rirs=Array.from({length:sets},(_,j)=>e.rirs[j]||'');if(confirm('Сохранить изменение также в шаблон на следующие тренировки?')){data.templates[data.current][i]={name:e.name,weight:e.weight,sets:e.sets,goal:e.goal}}save();renderTrain()};
+window.addExercise=()=>{let n=prompt('Название нового упражнения:');if(!n||!n.trim())return;let e={name:n.trim(),weight:'',sets:3,goal:'8–12',reps:['','',''],rirs:['','',''],comment:''};getDraft().exercises.push(e);if(confirm('Добавить его и в постоянный шаблон?'))data.templates[data.current].push({name:e.name,weight:'',sets:3,goal:'8–12'});save();renderTrain()};
+window.resetDraft=()=>{if(!confirm('Очистить незавершённую тренировку?'))return;delete data.drafts[data.current];save();renderTrain()};
+window.finishWorkout=()=>{let d=getDraft();if(!d.exercises.some(e=>e.reps.some(v=>v!==''))&&!confirm('Повторения не заполнены. Всё равно сохранить?'))return;data.workouts.unshift({id:Date.now(),name:data.current,...copy(d)});data.templates[data.current]=d.exercises.map(({name,weight,sets,goal})=>({name,weight,sets,goal}));delete data.drafts[data.current];save();selectTab('records')};
+function activityEntry(kind,date){return (data[kind]||[]).find(x=>x.date===date)}
+function activityCard(kind,date){
+ const v=activityEntry(kind,date);
+ if(!v)return `<div class="muted small">За ${fmt(date)} запись ещё не сделана</div>`;
+ let shown=kind==='steps'?`${Number(v.count).toLocaleString('ru-RU')} шагов`:kind==='bodyweight'?`${esc(v.weight)} кг`:`${esc(v.distance)} м · ${esc(v.minutes)} мин${v.feeling?' · самочувствие '+esc(v.feeling)+'/5':''}${v.comment?' · '+esc(v.comment):''}`;
+ return `<div class="row between"><div><div class="muted small">Записано за ${fmt(date)}</div><div style="color:#80ddbd;font-weight:800;font-size:19px;margin-top:5px">${shown}</div></div><span class="badge">✓ Сохранено</span></div>`;
+}
+const activityKinds={pool:{form:'poolForm',title:'бассейн',fields:['distance','minutes','feeling','comment']},steps:{form:'stepsForm',title:'шаги',fields:['count']},bodyweight:{form:'weightForm',title:'вес',fields:['weight']}};
+window.loadActivityDate=kind=>{
+ const cfg=activityKinds[kind], form=document.getElementById(cfg.form),date=form.elements.date.value,v=activityEntry(kind,date);
+ cfg.fields.forEach(field=>{form.elements[field].value=v?.[field]??''});
+ document.getElementById(kind+'Saved').innerHTML=activityCard(kind,date);
+ document.getElementById(kind+'Status').textContent=v?'Эту запись можно изменить и сохранить заново.':'Заполни поля и сохрани запись.';
+ form.querySelector('button[type=submit]').textContent=(v?'Обновить ':'Сохранить ')+cfg.title;
+};
+function activitySave(kind,form){
+ const o=Object.fromEntries(new FormData(form));
+ data[kind]=(data[kind]||[]).filter(x=>x.date!==o.date);
+ data[kind].push(o);
+ data[kind].sort((a,b)=>b.date.localeCompare(a.date));
+ if(save()){
+   document.getElementById(kind+'Saved').innerHTML=activityCard(kind,o.date);
+   document.getElementById(kind+'Status').textContent='✓ Сохранено. Поля остаются заполненными — можешь скорректировать и сохранить повторно.';
+   form.querySelector('button[type=submit]').textContent='Обновить '+activityKinds[kind].title;
+   renderHome();renderRecords();
+ }
+}
+function renderActivity(){
+ const d=today();
+ $('#activity').innerHTML=`<h2 class="titleline">Активность</h2><p class="muted">Все значения сохраняются по дате. Выбери день, чтобы увидеть или изменить запись.</p>
+ <div class="card"><h3 style="margin-top:0">🏊 Бассейн</h3><form id="poolForm"><div class="grid">
+ <div><div class="label">Дата</div><input name="date" type="date" required value="${d}" onchange="loadActivityDate('pool')"></div>
+ <div><div class="label">Дистанция, м</div><input name="distance" type="number" min="0" placeholder="800" required></div>
+ <div><div class="label">Время, мин</div><input name="minutes" type="number" min="1" placeholder="30" required></div>
+ <div><div class="label">Самочувствие (1–5)</div><select name="feeling"><option value="">Не указывать</option>${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></div></div>
+ <div class="label" style="margin-top:12px">Комментарий</div><textarea name="comment" placeholder="Техника, дыхание, нагрузка…"></textarea>
+ <div id="poolSaved" class="saved-entry">${activityCard('pool',d)}</div><button class="btn full" type="submit">Сохранить бассейн</button><p id="poolStatus" class="hint" aria-live="polite"></p></form></div>
+ <div class="card"><h3 style="margin-top:0">🚶 Шаги</h3><form id="stepsForm"><div class="grid">
+ <div><div class="label">Дата</div><input name="date" type="date" value="${d}" onchange="loadActivityDate('steps')" required></div>
+ <div><div class="label">Количество шагов</div><input name="count" type="number" min="0" placeholder="13000" required></div></div>
+ <div id="stepsSaved" class="saved-entry">${activityCard('steps',d)}</div><button class="btn full" type="submit">Сохранить шаги</button><p id="stepsStatus" class="hint" aria-live="polite"></p></form>
+ </div>
+ <div class="card"><h3 style="margin-top:0">⚖️ Вес</h3><form id="weightForm"><div class="grid">
+ <div><div class="label">Дата</div><input name="date" type="date" value="${d}" onchange="loadActivityDate('bodyweight')" required></div>
+ <div><div class="label">Вес, кг</div><input name="weight" type="number" step="0.1" min="20" max="350" placeholder="87.0" required></div></div>
+ <div id="bodyweightSaved" class="saved-entry">${activityCard('bodyweight',d)}</div><button class="btn full" type="submit">Сохранить вес</button><p id="bodyweightStatus" class="hint" aria-live="polite"></p></form></div>`;
+ for(const kind of Object.keys(activityKinds)){
+  loadActivityDate(kind);
+  document.getElementById(activityKinds[kind].form).onsubmit=e=>{e.preventDefault();activitySave(kind,e.currentTarget)};
+ }
+}
+
+// Импорт шага из команды iOS. Не подменяем выбранную пользователем дату.
+window.pasteHealthSteps=async()=>{
+ const message=document.getElementById('healthImportStatus');
+ try {
+  if(!navigator.clipboard||!navigator.clipboard.readText) throw Error('Нет доступа к буферу');
+  const value=await navigator.clipboard.readText();
+  document.getElementById('healthStepsPaste').value=value.trim();
+  message.textContent='Данные вставлены. Нажми «Сохранить импортированные шаги».';
+ }catch(e){message.textContent='iPhone не разрешил автоматически прочитать буфер. Зажми поле выше и выбери «Вставить».'}
+};
+window.importHealthSteps=()=>{
+ const message=document.getElementById('healthImportStatus');
+ const raw=document.getElementById('healthStepsPaste').value.trim();
+ // Принимаем целые числа и типичную группировку разрядов пробелами; отклоняем случайный текст.
+ if(!/^[0-9][0-9\s\u00a0\u202f]*$/.test(raw)){
+  message.textContent='Нужно только количество шагов, например 10687. Проверь содержимое буфера.';return;
+ }
+ const count=Number(raw.replace(/\s/g,''));
+ if(!Number.isSafeInteger(count)||count<0||count>150000){message.textContent='Число шагов выглядит неверным. Проверь данные.';return}
+ const form=document.getElementById('stepsForm');
+ const date=form.elements.date.value;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){message.textContent='Выбери дату записи.';return}
+ form.elements.count.value=String(count);
+ activitySave('steps',form);
+ message.textContent='✓ Импортировано '+count.toLocaleString('ru-RU')+' шагов за '+fmt(date)+'. Можно изменить вручную.';
+};
+
+function report(){let t=['МОЙ СПОРТ — ОТЧЁТ',''];for(let w of data.workouts.slice(0,12)){t.push(`Силовая: ${fmt(w.date)} — ${w.name}`);for(let e of w.exercises){let sets=e.reps.map((n,j)=>n===''?null:`${n} повт.${e.rirs[j]!==''?' / RIR '+e.rirs[j]:''}`).filter(Boolean);if(sets.length)t.push(`• ${e.name}, ${e.weight||'?'} кг: ${sets.join('; ')}${e.comment?' | '+e.comment:''}`)}if(w.comment)t.push('Итог: '+w.comment);t.push('')}
+ if(data.pool.length){t.push('БАССЕЙН');for(let p of data.pool.slice(0,12))t.push(`${fmt(p.date)}: ${p.distance} м / ${p.minutes} мин${p.feeling?' / самочувствие '+p.feeling+'/5':''}${p.comment?' / '+p.comment:''}`);t.push('')}
+ if(data.steps.length){t.push('ШАГИ');for(let s of data.steps.slice(0,14))t.push(`${fmt(s.date)}: ${s.count}`);t.push('')}
+ if(data.bodyweight.length){t.push('ВЕС');for(let w of data.bodyweight.slice(0,12))t.push(`${fmt(w.date)}: ${w.weight} кг`)}
+ t.push('Проанализируй динамику и порекомендуй нагрузки на следующую тренировку с учётом возвращения после перерыва.');return t.join('\n')}
+window.copyReport=async()=>{let text=report();try{await navigator.clipboard.writeText(text);alert('Отчёт скопирован. Вставь его в чат ChatGPT.')}catch(e){let x=document.createElement('textarea');x.value=text;document.body.appendChild(x);x.select();try{document.execCommand('copy');alert('Отчёт скопирован')}catch(e){prompt('Скопируй отчёт:',text)}x.remove()}};
+window.sendChatGPT=async()=>{
+  const txt=report();
+  let copied=false;
+  try { await navigator.clipboard.writeText(txt); copied=true; } catch(e) {
+    let box=document.createElement('textarea');box.value=txt;box.style.position='fixed';box.style.top='0';box.style.opacity='0';document.body.appendChild(box);box.focus();box.select();
+    try {copied=document.execCommand('copy')}catch(e){} box.remove();
+  }
+  if (!copied) {prompt('Не удалось скопировать автоматически. Скопируй отчёт:',txt);return;}
+  let destination=String(data.chatUrl||'').trim();
+  const ok=/^https:\/\/(?:www\.)?chatgpt\.com\/c\/[a-zA-Z0-9-]+(?:[/?#].*)?$/.test(destination);
+  if (!ok) destination='https://chatgpt.com/';
+  const status=document.getElementById('chatStatus');
+  if(status)status.textContent='Отчёт скопирован ✓ Открой нужный чат, вставь текст и нажми отправку.';
+  // Пробуем открыть установленное приложение ChatGPT, не веб-страницу.
+  // Поддержка перехода в конкретную беседу зависит от iOS и версии приложения.
+  let appUrl='chatgpt://';
+  if(ok){
+    const u=new URL(destination);
+    appUrl='com.openai.chat://chatgpt.com'+u.pathname;
+  }
+  if(status)status.textContent='Отчёт скопирован ✓ Открываю приложение ChatGPT. Вставь отчёт и отправь.';
+  window.location.href=appUrl;
+};
+window.saveChatUrl=()=>{
+  let input=document.getElementById('chatUrl');let v=(input?.value||'').trim();
+  if(v && !/^https:\/\/(?:www\.)?chatgpt\.com\/c\/[a-zA-Z0-9-]+(?:[/?#].*)?$/.test(v)){
+    alert('Нужна прямая ссылка на беседу вида https://chatgpt.com/c/... (не ссылка «Поделиться»). Или оставь поле пустым.');return;
+  }
+  data.chatUrl=v;save();alert(v?'Ссылка на чат сохранена':'Будет открываться главная ChatGPT');
+};
+window.downloadBackup=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='мой-спорт-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+window.restoreBackup=()=>{$('#restoreFile').click()};
+window.importBackup=async input=>{let file=input.files[0];if(!file)return;try{let d=JSON.parse(await file.text());if(!d.templates||!Array.isArray(d.workouts)||!Array.isArray(d.pool))throw Error();if(!confirm('Заменить текущие данные содержимым резервной копии?'))return;data=d;if(!Array.isArray(data.measurements))data.measurements=[];save();render();alert('Копия восстановлена')}catch(e){alert('Файл не подходит')}input.value=''};
+window.deleteRecord=(kind,id)=>{if(!confirm('Удалить эту запись?'))return;data[kind]=data[kind].filter(x=>String(x.id||x.date)!==String(id));save();renderRecords();renderHome()};
+function renderRecords(){let countPool=data.pool.length,steps=data.steps.slice(0,7),avg=steps.length?Math.round(steps.reduce((a,x)=>a+Number(x.count||0),0)/steps.length):0;$('#records').innerHTML=`<h2 class="titleline">История и прогресс</h2><div class="grid"><div class="stat"><span class="small muted">Силовые</span><strong>${data.workouts.length}</strong></div><div class="stat"><span class="small muted">Бассейн</span><strong>${countPool}</strong></div><div class="stat"><span class="small muted">Шаги / записанный день</span><strong>${avg?avg.toLocaleString('ru-RU'):'—'}</strong></div><div class="stat"><span class="small muted">Последний вес</span><strong>${data.bodyweight[0]?data.bodyweight[0].weight+' кг':'87 кг*'}</strong></div></div><p class="small muted">* Начальный ориентир; среднее шагов рассчитано по последним 7 записям, не по календарной неделе.</p><div class="card"><h3 style="margin-top:0">Передать данные ChatGPT</h3><p class="muted small">Кнопка копирует отчёт и пробует открыть приложение ChatGPT на iPhone, а не веб-сайт. Затем вставь отчёт и отправь его.</p><button class="btn full" onclick="sendChatGPT()">↗ Открыть приложение ChatGPT</button><p id="chatStatus" class="hint" aria-live="polite">Если браузер не открыл приложение, используй кнопку «Только скопировать» и открой ChatGPT с главного экрана. Прямой переход в чат может не поддерживаться.</p><details style="margin-top:12px"><summary class="hint">Открывать именно этот чат (необязательно)</summary><p class="hint">Необязательно: вставь ссылку вида chatgpt.com/c/... — попробуем открыть конкретную беседу в приложении. Это экспериментальная возможность; ссылка «Поделиться» не подходит.</p><input id="chatUrl" type="url" inputmode="url" placeholder="https://chatgpt.com/c/..." value="${esc(data.chatUrl||'')}"><button class="btn secondary full" style="margin-top:8px" onclick="saveChatUrl()">Сохранить ссылку</button></details><div class="tools"><button class="btn secondary grow" onclick="copyReport()">⧉ Только скопировать</button></div><div class="tools"><button class="btn secondary grow" onclick="downloadBackup()">↓ Резервная копия</button><button class="btn secondary grow" onclick="restoreBackup()">↑ Восстановить</button></div><input id="restoreFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(this)"></div><h3 class="section">Силовые тренировки</h3><div class="card">${data.workouts.length?data.workouts.map(w=>`<div class="history-item"><div class="row between"><b>${esc(w.name)}</b><span class="muted small">${fmt(w.date)}</span></div>${w.exercises.map(e=>{let sets=e.reps.map((n,j)=>n!==''?`${n}${e.rirs[j]!==''?' ('+e.rirs[j]+')':''}`:null).filter(Boolean);return sets.length?`<div class="hint">${esc(e.name)} · ${esc(e.weight||'?')} кг · ${esc(sets.join(' / '))}</div>`:''}).join('')}${w.comment?`<div class="hint">${esc(w.comment)}</div>`:''}<div class="right"><button class="btn ghost" onclick="deleteRecord('workouts',${w.id})">Удалить</button></div></div>`).join(''):'<div class="empty">Пока нет завершённых тренировок</div>'}</div><h3 class="section">Бассейн</h3><div class="card">${data.pool.length?data.pool.map(p=>`<div class="history-item"><div class="row between"><div><b>${fmt(p.date)}</b><div class="hint">${esc(p.distance)} м · ${esc(p.minutes)} мин${p.comment?' · '+esc(p.comment):''}</div></div><button class="btn ghost" onclick="deleteRecord('pool','${p.date}')">×</button></div></div>`).join(''):'<div class="empty">Пока нет записей</div>'}</div><h3 class="section">Шаги</h3><div class="card">${data.steps.length?data.steps.map(p=>`<div class="history-item row between"><span>${fmt(p.date)}</span><b>${Number(p.count).toLocaleString('ru-RU')}</b><button class="btn ghost" onclick="deleteRecord('steps','${p.date}')">×</button></div>`).join(''):'<div class="empty">Пока нет записей</div>'}</div>`}
+
+// Отдельное хранилище. Интимные записи НЕ попадают в отчёт ChatGPT и в обычную резервную копию спорта.
+const PRIVATE_KEY='my_sport_intimacy_v1';
+const VAULT_KEY='my_sport_intimacy_encrypted_v1';
+let vaultKey=null, vaultMeta=null;
+try{vaultMeta=JSON.parse(localStorage.getItem(VAULT_KEY)||'null')}catch(e){}
+const b64=arr=>btoa(String.fromCharCode(...new Uint8Array(arr)));
+const unb64=str=>Uint8Array.from(atob(str),c=>c.charCodeAt(0));
+async function derivePrivateKey(pass,salt){const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encryptPrivate(){if(!vaultKey)throw Error('Закрыто');const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},vaultKey,new TextEncoder().encode(JSON.stringify(intimate)));return {v:1,kdf:'PBKDF2-SHA256',iterations:310000,salt:vaultMeta.salt,iv:b64(iv),ciphertext:b64(ct)}}
+async function decryptPrivate(key,record){return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(record.iv)},key,unb64(record.ciphertext))))}
+window.setupPrivate=async()=>{const p=document.getElementById('privNewPass')?.value||'',repeat=document.getElementById('privRepeatPass')?.value||'';if(p.length<12||p!==repeat){document.getElementById('privLockStatus').textContent='Нужен пароль от 12 символов; оба поля должны совпадать.';return}try{if(!crypto.subtle)throw Error('Для шифрования нужен HTTPS');const salt=crypto.getRandomValues(new Uint8Array(16));vaultKey=await derivePrivateKey(p,salt);vaultMeta={salt:b64(salt)};const record=await encryptPrivate();localStorage.setItem(VAULT_KEY,JSON.stringify(record));localStorage.removeItem(PRIVATE_KEY);renderPrivate()}catch(e){vaultKey=null;document.getElementById('privLockStatus').textContent='Не удалось зашифровать: '+e.message}};
+window.unlockPrivate=async()=>{const password=document.getElementById('privUnlockPass')?.value||'';try{const record=JSON.parse(localStorage.getItem(VAULT_KEY));const key=await derivePrivateKey(password,unb64(record.salt));const records=await decryptPrivate(key,record);if(!Array.isArray(records))throw Error('Неверные данные');vaultKey=key;vaultMeta={salt:record.salt};intimate=records.map(x=>({...x,type:x.type==='oral'?'partner':x.type}));renderPrivate()}catch(e){document.getElementById('privLockStatus').textContent='Пароль не подошёл или данные повреждены'}};
+window.lockPrivate=()=>{vaultKey=null;intimate=[];renderPrivate()};
+function privateGate(){const saved=localStorage.getItem(VAULT_KEY);if(!saved)return `<h2 class="titleline">🔐 Защитить личные записи</h2><div class="card"><p class="hint">Придумай пароль: записи будут зашифрованы AES-GCM на самом iPhone. Ранее сохранённые записи перенесутся при создании пароля. Пароль не хранится и не восстанавливается.</p><div class="label">Пароль (минимум 12 символов)</div><input id="privNewPass" type="password" autocomplete="new-password" style="width:100%"><div class="label" style="margin-top:12px">Повтори пароль</div><input id="privRepeatPass" type="password" autocomplete="new-password" style="width:100%"><button class="btn full" style="margin-top:14px" onclick="setupPrivate()">Зашифровать личный дневник</button><p class="status" id="privLockStatus"></p></div>`;return `<h2 class="titleline">🔒 Личное</h2><div class="card"><p class="hint">Личные записи зашифрованы на этом устройстве. Введи пароль, чтобы открыть календарь и статистику.</p><input id="privUnlockPass" type="password" autocomplete="current-password" placeholder="Пароль" style="width:100%"><button class="btn full" style="margin-top:12px" onclick="unlockPrivate()">Открыть раздел</button><p class="status" id="privLockStatus"></p></div>`}
+
+let intimate=[];
+try { const stored=JSON.parse(localStorage.getItem(PRIVATE_KEY)||'[]');if(Array.isArray(stored))intimate=stored; }catch(e){}
+const intimateTypes={sex:'Секс',solo:'Мастурбация самостоятельно',partner:'Ласки жены (орально / руками)'};
+// Совместимость с версией 1.6: старые записи «Оральный секс» объединяем с ласками жены.
+const normalizeIntimateType=type=>type==='oral'?'partner':type;
+if(intimate.some(x=>x.type==='oral')){intimate=intimate.map(x=>({...x,type:normalizeIntimateType(x.type)}));try{localStorage.setItem(PRIVATE_KEY,JSON.stringify(intimate))}catch(e){}}
+let privateMonth=today().slice(0,7);
+let selectedPrivateDate=today();
+const privateIcons={sex:'❤️',solo:'✋',partner:'💋'};
+function dayShift(date,shift){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+shift);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function intimateStreaks(){
+ const days=new Set(intimate.map(x=>x.date));
+ const sorted=[...days].sort();let longest=0,run=0,last='';
+ for(const day of sorted){run=(last && dayShift(last,1)===day)?run+1:1;longest=Math.max(longest,run);last=day}
+ let current=0,day=days.has(today())?today():dayShift(today(),-1);
+ while(days.has(day)){current++;day=dayShift(day,-1)}
+ return {current,longest,last:sorted.length?sorted[sorted.length-1]:null};
+}
+function privateCalendar(){
+ const [year,mo]=privateMonth.split('-').map(Number);
+ const first=new Date(year,mo-1,1,12);const offset=(first.getDay()+6)%7;
+ const total=new Date(year,mo,0).getDate();
+ const byDate={};for(const event of intimate){if(event.date.startsWith(privateMonth)){(byDate[event.date]??=[]).push(event)}}
+ const labels=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+ const prevMonth=new Date(year,mo-2,1);const prev=prevMonth.getFullYear()+'-'+String(prevMonth.getMonth()+1).padStart(2,'0');
+ const nextMonth=new Date(year,mo,1);const next=nextMonth.getFullYear()+'-'+String(nextMonth.getMonth()+1).padStart(2,'0');
+ const title=first.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+ let cells='';for(let i=0;i<offset;i++)cells+='<span class="calendar-day empty"></span>';
+ for(let d=1;d<=total;d++){
+  const date=privateMonth+'-'+String(d).padStart(2,'0');const events=byDate[date]||[];
+  const kinds=[...new Set(events.map(x=>x.type))];
+  const icons=kinds.map(x=>'<span>'+privateIcons[x]+'</span>').join('');
+  const count=events.length>1?'<span class="calendar-multiple">×'+events.length+'</span>':'';
+  const classes='calendar-day'+(date===today()?' today':'')+(date===selectedPrivateDate?' selected':'');
+  cells+='<button type="button" class="'+classes+'"'+(date>today()?' disabled':'')+' onclick="selectPrivateDay(&quot;'+date+'&quot;)" aria-label="'+date+', событий: '+events.length+'"><span class="calendar-date">'+d+'</span><span class="calendar-symbols">'+icons+'</span>'+count+'</button>';
+ }
+ return '<div class="card"><div class="calendar-head"><b>Календарь · '+title+'</b><div class="calendar-actions"><button class="calendar-nav" type="button" onclick="changePrivateMonth(&quot;'+prev+'&quot;)" aria-label="Предыдущий месяц">‹</button><button class="calendar-nav" type="button" onclick="changePrivateMonth(&quot;'+next+'&quot;)" aria-label="Следующий месяц"'+(next>today().slice(0,7)?' disabled':'')+'>›</button></div></div><div class="calendar-week">'+labels.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="calendar-grid">'+cells+'</div><p class="hint" style="margin-top:12px">❤️ Секс · ✋ Самостоятельно · 💋 Ласки жены. Число × показывает количество событий за день. Нажми на дату, чтобы отметить событие.</p></div>';
+}
+window.selectPrivateDay=date=>{if(!privateDate(date)||date>today())return;selectedPrivateDate=date;privateMonth=date.slice(0,7);renderPrivate()};
+
+async function saveIntimate(){try{const vault=await encryptPrivate();localStorage.setItem(VAULT_KEY,JSON.stringify(vault));return true}catch(e){alert('Не удалось зашифровать или сохранить личные записи: '+e.message);return false}}
+function privateDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s||'') && !Number.isNaN(new Date(s+'T12:00:00').getTime())}
+window.addIntimate=async type=>{
+ if(!Object.prototype.hasOwnProperty.call(intimateTypes,type))return;
+ const date=document.getElementById('intimateDate')?.value||today();if(!privateDate(date)){alert('Выбери корректную дату');return;}
+ const item={id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),date,type};
+ intimate.unshift(item);if(!(await saveIntimate())){intimate.shift();return;}
+ privateMonth=date.slice(0,7);selectedPrivateDate=date;renderPrivate();
+ document.getElementById('intimateDate').value=date;
+ const status=document.getElementById('privateStatus');if(status)status.textContent='✓ '+intimateTypes[type]+' · '+fmt(date)+' — сохранено';
+};
+window.removeIntimate=async id=>{if(!confirm('Удалить эту запись?'))return;const backup=intimate.slice();intimate=intimate.filter(x=>x.id!==id);if(!(await saveIntimate()))intimate=backup;renderPrivate()};
+window.changePrivateMonth=v=>{if(/^\d{4}-\d{2}$/.test(v)&&v<=today().slice(0,7)){privateMonth=v;selectedPrivateDate=v===today().slice(0,7)?today():v+'-01';renderPrivate()}};
+function privateSummary(records){return Object.keys(intimateTypes).map(k=>({key:k,label:intimateTypes[k],count:records.filter(x=>x.type===k).length}))}
+function renderPrivate(){
+ const host=document.getElementById('private');if(!host)return;if(!vaultKey){host.innerHTML=privateGate();return;}
+ const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-6);
+ const startStr=start.getFullYear()+'-'+String(start.getMonth()+1).padStart(2,'0')+'-'+String(start.getDate()).padStart(2,'0');
+ const week=intimate.filter(x=>x.date>=startStr && x.date<=today());
+ const month=intimate.filter(x=>x.date.startsWith(privateMonth));
+ const sums=privateSummary(month);const max=Math.max(1,...sums.map(x=>x.count));const streaks=intimateStreaks();
+ const privateMeta={sex:{icon:'❤️',label:'Секс',sub:'Половой акт'},solo:{icon:'✋',label:'Мастурбация',sub:'Самостоятельно'},partner:{icon:'💋',label:'Ласки жены',sub:'Орально или руками'}};
+ host.innerHTML=`<h2 class="titleline">Личный трекер</h2><p class="muted small">Отмечай событие одним нажатием. Ласки жены включают оральный секс и стимуляцию руками; самостоятельная мастурбация учитывается отдельно. Можно добавить несколько событий в один день.</p>
+ <div class="card private-hero"><div class="label">Дата события</div><input id="intimateDate" type="date" value="${selectedPrivateDate}" max="${today()}" onchange="selectedPrivateDate=this.value" style="width:100%;margin-bottom:12px">
+ <div class="private-grid">${Object.entries(privateMeta).map(([k,v])=>`<button class="private-choice ${k}" onclick="addIntimate('${k}')"><div><div class="icon">${v.icon}</div><div class="main">${esc(v.label)}</div><span>${esc(v.sub)}</span></div></button>`).join('')}</div>
+ <div class="status" id="privateStatus" aria-live="polite"></div><button class="btn ghost" onclick="lockPrivate()">🔒 Закрыть личное</button></div>
+ <h3 class="section">Календарь активности</h3>${privateCalendar()}
+ <h3 class="section">Серии</h3><div class="grid"><div class="stat"><span class="small muted">Текущая серия</span><strong>${streaks.current} дн.</strong></div><div class="stat"><span class="small muted">Рекордная серия</span><strong>${streaks.longest} дн.</strong></div></div>
+ <p class="streak-note">Серия — дни подряд, в которые было хотя бы одно событие. Если сегодня записей нет, вчерашняя серия ещё считается текущей. Перерывы — это нормально.</p>
+ <h3 class="section">Статистика</h3><div class="grid"><div class="stat"><span class="small muted">За последние 7 дней</span><strong>${week.length}</strong></div><div class="stat"><span class="small muted">За выбранный месяц</span><strong>${month.length}</strong></div></div>
+ <div class="card"><div class="row between"><b>По категориям</b><input aria-label="Месяц статистики" type="month" value="${privateMonth}" max="${today().slice(0,7)}" onchange="changePrivateMonth(this.value)" style="max-width:170px"></div>
+ ${sums.map(x=>`<div style="margin-top:17px"><div class="row between"><span class="small">${esc(x.label)}</span><b>${x.count}</b></div><div class="mini-bars"><div class="mini-bar" style="width:${100*x.count/max}%"></div></div></div>`).join('')}</div>
+ <h3 class="section">История за месяц</h3><div class="card">${month.length?month.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="private-row row between"><div><b>${esc(intimateTypes[x.type]||'Событие')}</b><div class="small muted">${fmt(x.date)}</div></div><button class="btn ghost" onclick="removeIntimate('${esc(x.id)}')">Удалить</button></div>`).join(''):'<div class="empty">В выбранном месяце записей нет</div>'}</div>
+ <details class="card"><summary>Приватность и резервная копия</summary><p class="hint">Личные записи зашифрованы AES-GCM паролем. Они не попадают в ChatGPT и обычную спортивную копию. Пароль восстановить нельзя. Если удалишь данные сайта, записи исчезнут без резервной копии.</p><button class="btn secondary full" onclick="exportPrivate()">Скачать зашифрованную копию личных записей</button><button class="btn secondary full" style="margin-top:9px" onclick="document.getElementById('privateRestore').click()">Восстановить личные записи</button><input id="privateRestore" type="file" accept=".json,application/json" class="hidden" onchange="importPrivate(this)"></details>`;
+}
+window.exportPrivate=()=>{const stored=localStorage.getItem(VAULT_KEY);if(!stored)return alert('Сначала включи шифрование');const blob=new Blob([stored],{type:'application/json'});const a=document.createElement('a');const u=URL.createObjectURL(blob);a.href=u;a.download='moy-sport-private-encrypted-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)};
+window.importPrivate=async el=>{const f=el.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(Array.isArray(d.events)){if(!vaultKey)throw Error('Сначала открой личный раздел');if(d.events.some(x=>!privateDate(x.date)||!Object.prototype.hasOwnProperty.call(intimateTypes,normalizeIntimateType(x.type))))throw Error('Повреждённый файл');if(confirm('Это резервная копия старой версии без шифрования. Импортировать и зашифровать её текущим паролем?')){const old=intimate;intimate=d.events.map(x=>({...x,type:normalizeIntimateType(x.type)}));if(!(await saveIntimate()))intimate=old;renderPrivate()}return}if(d.v!==1||!d.salt||!d.iv||!d.ciphertext)throw Error('Неверный формат');const pass=prompt('Пароль от импортируемой резервной копии:');if(pass===null)return;const key=await derivePrivateKey(pass,unb64(d.salt));const events=await decryptPrivate(key,d);if(!Array.isArray(events)||events.some(x=>!privateDate(x.date)||!Object.prototype.hasOwnProperty.call(intimateTypes,normalizeIntimateType(x.type))))throw Error('Некорректные записи');if(confirm('Заменить текущий личный дневник содержимым зашифрованной копии?')){localStorage.setItem(VAULT_KEY,JSON.stringify(d));localStorage.removeItem(PRIVATE_KEY);vaultMeta={salt:d.salt};vaultKey=key;intimate=events.map(x=>({...x,type:normalizeIntimateType(x.type)}));renderPrivate()}}catch(e){alert('Не удалось восстановить: неверный пароль или файл')}finally{el.value=''}};
+
+// Замеры тела: данные включены в обычную резервную копию спорта.
+if(!Array.isArray(data.measurements))data.measurements=[];
+const measureDefs=[
+ ['waist','Талия','Самое узкое место, после спокойного выдоха'],
+ ['navel','Живот','На уровне пупка'],
+ ['chest','Грудь','По линии сосков, без вдоха'],
+ ['hips','Ягодицы / бёдра','Самая широкая часть ягодиц'],
+ ['shoulders','Плечи (обхват)','По самой широкой окружности плеч'],
+ ['arm','Бицепс','Расслабленная рука, середина плеча'],
+ ['forearm','Предплечье','Самое широкое место'],
+ ['thigh','Бедро','По самой широкой части одного бедра'],
+ ['calf','Голень','Самое широкое место'],
+ ['neck','Шея','У основания шеи']
+];
+let measureChartKey='waist';
+function measureByDate(date){return data.measurements.find(x=>x.date===date)}
+function validMeasureDate(date){return /^\d{4}-\d{2}-\d{2}$/.test(date)&&date<=today()}
+function renderMeasurements(){
+ const d=today(),saved=measureByDate(d),recent=data.measurements.slice().sort((a,b)=>b.date.localeCompare(a.date));
+ const last=recent[0],prev=recent[1];
+ const since=last?Math.floor((new Date(d+'T12:00:00')-new Date(last.date+'T12:00:00'))/86400000):null;
+ const next=last?dayShift(last.date,14):null;
+ const due=next&&next<=d;
+ const fields=measureDefs.map(([key,name,guide])=>`<div class="measure-box"><div class="label">${name}, см</div><input type="number" name="${key}" inputmode="decimal" step="0.1" min="1" max="300" placeholder="—" value="${saved?.[key]??''}" aria-label="${name} в сантиметрах"><div class="hint">${guide}</div></div>`).join('');
+ const table=measureDefs.map(([key,name])=>{
+   const a=last?.[key],b=prev?.[key],n=Number(a),p=Number(b),hasA=a!==undefined&&a!=='';
+   const change=hasA && b!==undefined && b!=='' ? n-p:null;
+   return `<div class="history-item row between"><div><b>${name}</b><div class="measure-delta">${change===null?'Нет предыдущего значения':(change>0?'+':'')+change.toFixed(1)+' см к прошлому замеру'}</div></div><b>${hasA?n.toFixed(1)+' см':'—'}</b></div>`
+ }).join('');
+ const history=recent.map(x=>`<div class="history-item row between"><div><b>${fmt(x.date)}</b><div class="hint">${measureDefs.filter(([k])=>x[k]!==undefined&&x[k]!=='').map(([k,label])=>label+': '+x[k]).join(' · ')||'Нет данных'}</div></div><button class="btn ghost" type="button" onclick="loadMeasureDate('${x.date}')">Изменить</button></div>`).join('');
+ document.getElementById('measurements').innerHTML=`<h2 class="titleline">📏 Замеры тела</h2><p class="muted small">Измеряй тело раз в две недели утром до завтрака, до тренировки, одной и той же лентой. Заполнять всё необязательно.</p>
+ <div class="measure-reminder"><div class="row between"><b>Следующий замер</b><span class="measure-badge">Каждые 14 дней</span></div><div style="font-size:21px;font-weight:800;margin-top:8px">${last?(due?'Пора измериться':fmt(next)):'Сделай первый замер'}</div><div class="hint">${last?'Последний замер: '+fmt(last.date)+' ('+since+' дн. назад).':'После первой записи появится дата следующего измерения.'} Напоминание ChatGPT настроено отдельно.</div></div>
+ <div class="card"><form id="measureForm"><div class="label">Дата измерений</div><input type="date" name="date" max="${d}" value="${d}" onchange="loadMeasureDate(this.value)" style="width:100%;margin-bottom:12px"><div class="measure-fields">${fields}</div><div class="label" style="margin-top:12px">Комментарий (необязательно)</div><textarea name="note" placeholder="После тренировки, отёки, замер другой лентой…">${esc(saved?.note||'')}</textarea><div class="saved-entry" id="measureSaved">${saved?'✓ Замеры за '+fmt(d)+' сохранены. Их можно исправить.':'За сегодня замеров пока нет'}</div><button type="submit" class="btn full">${saved?'Обновить':'Сохранить'} замеры</button><p class="status" id="measureStatus" aria-live="polite"></p></form></div>
+ <h3 class="section">📈 Динамика</h3><div class="card"><label class="label" for="measureMetric">Показатель для графика</label><select id="measureMetric" class="measure-select" onchange="changeMeasureMetric(this.value)">${measureDefs.map(([k,v])=>`<option value="${k}" ${k===measureChartKey?'selected':''}>${v}</option>`).join('')}</select><div id="measureGraph">${measureChart(measureChartKey)}</div></div>
+ <h3 class="section">Последние показатели</h3><div class="card">${last?'<div class="hint">'+fmt(last.date)+(prev?' по сравнению с '+fmt(prev.date):' — первый замер')+'</div>'+table:'<div class="empty">Первый замер создаст точку отсчёта</div>'}</div>
+ <h3 class="section">История замеров</h3><div class="card">${history||'<div class="empty">История появится после первого измерения</div>'}</div>`;
+ document.getElementById('measureForm').addEventListener('submit',saveMeasures);
+}
+function measureChart(key){
+ const points=data.measurements.filter(x=>x[key]!==undefined&&x[key]!==''&&Number.isFinite(Number(x[key]))).slice().sort((a,b)=>a.date.localeCompare(b.date));
+ if(!points.length)return '<div class="empty">Для графика нужны сохранённые замеры</div>';
+ const first=Number(points[0][key]),last=Number(points[points.length-1][key]);
+ const diff=last-first,delta=(diff>0?'+':'')+diff.toFixed(1)+' см';
+ if(points.length<2)return `<div class="saved-entry">${first.toFixed(1)} см · ${fmt(points[0].date)}. Для динамики добавь второй замер.</div>`;
+ const w=340,h=168,p=24,values=points.map(x=>Number(x[key]));let lo=Math.min(...values),hi=Math.max(...values);const pad=Math.max(0.7,(hi-lo)*.15);lo-=pad;hi+=pad;
+ const xy=points.map((x,i)=>[p+i*(w-2*p)/(points.length-1),h-p-(Number(x[key])-lo)/(hi-lo)*(h-2*p)]);
+ const svg=`<svg class="measure-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="График измерений: от ${first.toFixed(1)} до ${last.toFixed(1)} сантиметров"><line x1="${p}" x2="${w-p}" y1="${h-p}" y2="${h-p}" stroke="#405266"/><polyline points="${xy.map(a=>a.map(v=>v.toFixed(1)).join(',')).join(' ')}"/>${xy.map(a=>`<circle cx="${a[0].toFixed(1)}" cy="${a[1].toFixed(1)}" r="4"/>`).join('')}<text x="${p}" y="${h-5}">${fmt(points[0].date)}</text><text x="${w-p}" y="${h-5}" text-anchor="end">${fmt(points[points.length-1].date)}</text><text x="${p}" y="15">${hi.toFixed(1)} см</text></svg>`;
+ return `<div class="row between" style="margin-top:14px"><b>${last.toFixed(1)} см</b><span class="measure-badge">${delta} за период</span></div>${svg}<div class="hint">${points.length} измерений · изменения показывают тенденцию, не оценку успеха</div>`;
+}
+window.changeMeasureMetric=k=>{if(measureDefs.some(([v])=>v===k)){measureChartKey=k;document.getElementById('measureGraph').innerHTML=measureChart(k)}};
+window.loadMeasureDate=date=>{
+ if(!validMeasureDate(date))return;
+ const form=document.getElementById('measureForm'),item=measureByDate(date);
+ form.elements.date.value=date;
+ for(const [key] of measureDefs)form.elements[key].value=item?.[key]??'';
+ form.elements.note.value=item?.note??'';
+ document.getElementById('measureSaved').textContent=item?'✓ Замеры за '+fmt(date)+' сохранены. Их можно исправить.':'За '+fmt(date)+' пока нет замеров';
+ form.querySelector('button[type=submit]').textContent=(item?'Обновить':'Сохранить')+' замеры';
+ document.getElementById('measureStatus').textContent='';
+ form.scrollIntoView({behavior:'smooth',block:'start'});
+};
+function saveMeasures(ev){
+ ev.preventDefault();const form=ev.currentTarget,date=form.elements.date.value;
+ if(!validMeasureDate(date)){document.getElementById('measureStatus').textContent='Выбери корректную дату';return}
+ const item={date,note:form.elements.note.value.trim()};let valid=0;
+ for(const [key] of measureDefs){const val=form.elements[key].value;if(val!==''){
+   const n=Number(val);if(!Number.isFinite(n)||n<1||n>300){document.getElementById('measureStatus').textContent='Проверь значения: только сантиметры';return}item[key]=Number(n.toFixed(1));valid++;
+ }}
+ if(!valid){document.getElementById('measureStatus').textContent='Заполни хотя бы один показатель';return}
+ const old=copy(data.measurements);data.measurements=data.measurements.filter(x=>x.date!==date);data.measurements.push(item);data.measurements.sort((a,b)=>b.date.localeCompare(a.date));
+ if(!save()){data.measurements=old;return}
+ renderMeasurements();loadMeasureDate(date);document.getElementById('measureStatus').textContent='✓ Замеры сохранены. Можно изменить и сохранить повторно.';
+}
+
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&vaultKey){vaultKey=null;intimate=[];renderPrivate()}});
+render();
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script></body></html>
