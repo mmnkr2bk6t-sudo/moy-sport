@@ -13,5 +13,20 @@ function store(o){const d=read();if(!d){alert('Сначала открой ос�
 function parse(s){try{pending=valid(JSON.parse(s));preview(pending);window.scrollTo({top:0,behavior:'smooth'})}catch(e){$('pending').innerHTML='<div class="card error">Ошибка импорта: '+escapeHtml(e.message)+'</div>'}}
 $('parse').onclick=()=>parse($('manual').value);
 function render(){const d=read();const all=(d?.nutritionDays||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));$('recent').innerHTML=all.length?('<div class="card"><h2>Последняя запись</h2><div class="muted">'+fmt(all[0].date)+'</div><div class="big">'+all[0].kcal+' / '+goal.kcal+' ккал</div>'+[['Белки','protein','#4885d8'],['Жиры','fat','#e69a56'],['Углеводы','carbs','#a58bea']].map(([n,k,c])=>'<div class="row"><span>'+n+'</span><span>'+all[0][k]+' / '+goal[k]+' г</span></div><div class="bar"><div class="fill" style="width:'+Math.min(100,100*all[0][k]/goal[k])+'%;background:'+c+'"></div></div>').join('')+'</div>'):'<div class="card muted">Пока нет записей. Импортируй подтверждённый итог дня из ChatGPT.</div>';let avg=all.slice(0,7);$('history').innerHTML='<div class="card"><h2>История</h2>'+(avg.length?'<p class="muted">Среднее по '+avg.length+' последним записанным дням: '+Math.round(avg.reduce((a,x)=>a+x.kcal,0)/avg.length)+' ккал · белок '+Math.round(avg.reduce((a,x)=>a+x.protein,0)/avg.length/1)+' г</p>':'')+(all.map(x=>'<div class="entry"><div class="row"><strong>'+fmt(x.date)+'</strong><strong>'+x.kcal+' ккал</strong></div><small>Б '+x.protein+' · Ж '+x.fat+' · У '+x.carbs+' г</small></div>').join('')||'<p class="muted">История появится здесь</p>')+'</div>'}
-render();if(location.hash.startsWith('#import=')){try{const p=decodeURIComponent(location.hash.slice(8));parse(p)}catch(e){$('pending').innerHTML='<div class="card error">Не удалось прочитать ссылку импорта</div>'}}
+async function syncPublishedNutrition(){
+ const status=document.createElement('div');status.className='card muted';status.id='syncStatus';status.textContent='Проверяем новые записи питания на GitHub…';$('recent').before(status);
+ try{
+  const response=await fetch('./nutrition-data.json?refresh='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const feed=await response.json();
+  if(!feed||!Array.isArray(feed.days))throw Error('Некорректный формат');
+  const local=read();if(!local)throw Error('Локальные данные приложения ещё не созданы');
+  const merged=new Map((Array.isArray(local.nutritionDays)?local.nutritionDays:[]).map(d=>[d.date,d]));
+  let added=0;
+  for(const raw of feed.days){const day=valid(raw);if(!merged.has(day.date)||JSON.stringify(merged.get(day.date))!==JSON.stringify(day))added++;merged.set(day.date,day)}
+  if(added){local.nutritionDays=Array.from(merged.values()).sort((a,b)=>a.date.localeCompare(b.date));localStorage.setItem(KEY,JSON.stringify(local));render()}
+  status.textContent='✓ Синхронизировано с GitHub: '+feed.days.length+' дн. питания'+(added?' · обновлено '+added:'');
+ }catch(err){status.textContent='Автосинхронизация сейчас недоступна: '+err.message+'. Уже сохранённые записи остаются на устройстве.'}
+}
+render();syncPublishedNutrition();if(location.hash.startsWith('#import=')){try{const p=decodeURIComponent(location.hash.slice(8));parse(p)}catch(e){$('pending').innerHTML='<div class="card error">Не удалось прочитать ссылку импорта</div>'}}
 </script></body></html>
