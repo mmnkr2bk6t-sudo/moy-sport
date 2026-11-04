@@ -26,6 +26,14 @@
           "name": "Пудинг Ehrmann",
           "kcal": 152
         }
+      ],
+      "drinks": [
+        {
+          "name": "Кола Zero",
+          "volumeMl": 1000,
+          "kcal": 0,
+          "category": "sugar_free_soda"
+        }
       ]
     }
   ]
