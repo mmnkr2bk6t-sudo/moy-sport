@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "days": [
+    {
+      "date": "2026-11-04",
+      "kcal": 2195,
+      "protein": 203,
+      "fat": 82,
+      "carbs": 163,
+      "source": "ChatGPT",
+      "confirmed": true,
+      "meals": [
+        {
+          "name": "Завтрак",
+          "kcal": 1035
+        },
+        {
+          "name": "Обед",
+          "kcal": 535
+        },
+        {
+          "name": "Ужин",
+          "kcal": 473
+        },
+        {
+          "name": "Пудинг Ehrmann",
+          "kcal": 152
+        }
+      ]
+    }
+  ]
+}
