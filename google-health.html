@@ -2,6 +2,16 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1220"><title>Google Health — Мой спорт</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1220;color:#eef4fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:740px;margin:auto;padding:22px 15px 95px}a{color:#88dac2}.back{text-decoration:none;color:#8ce1c8;font-size:14px}.hero{padding:21px 18px;border-radius:20px;background:linear-gradient(130deg,#1d3949,#183b36);border:1px solid #365c65;margin:18px 0}.hero h1{font-size:26px;margin:9px 0}.muted{color:#a1b3c9;font-size:13px;line-height:1.55}.card{background:#152235;border:1px solid #2a4056;padding:16px;border-radius:17px;margin:14px 0}.card h2{font-size:19px;margin:0 0 12px}.btn{border:0;background:#7bdec0;color:#0d2723;font-weight:800;border-radius:12px;padding:13px 15px;cursor:pointer}.btn.secondary{background:#263e53;color:#e7f1ff}.btn:disabled{opacity:.4}.full{width:100%}.label{color:#abbbcc;font-size:12px;margin:12px 0 6px}input{width:100%;border-radius:11px;background:#101d2b;border:1px solid #43576e;color:#fff;padding:13px;font:inherit}.small{font-size:12px}.status{font-size:13px;color:#98dcca;margin:12px 0;white-space:pre-wrap;line-height:1.5}.steps{padding-left:23px;color:#c7d6e5;font-size:13px;line-height:1.7}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:13px;border-radius:13px;background:#1a3040}.metric b{display:block;font-size:20px;margin-top:8px}.metric span{font-size:12px;color:#a5b7c6}.hint{font-size:12px;color:#a6b6c8;line-height:1.55}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.hidden{display:none}.detail{border-top:1px solid #334559;padding:11px 0}.warn{color:#ffcf95}details summary{cursor:pointer;color:#93e1c6}.spacer{height:7px}.danger{background:#45303b;color:#ffc8d1} 
+
+/* mobile width containment */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+.wrap{width:100%;max-width:740px;min-width:0;margin-inline:auto}
+.wrap>*,.card,.hero,.stat,.metric{min-width:0;max-width:100%;box-sizing:border-box}
+.wrap .row>*{min-width:0}
+.wrap input,.wrap textarea,.wrap select,.wrap button{max-width:100%;min-width:0;box-sizing:border-box}
+.wrap .row,.wrap .three,.wrap .metrics{min-width:0}
+.wrap .hint,.wrap .muted,.wrap .entry{overflow-wrap:anywhere}
+@media(max-width:480px){.wrap{padding:17px 12px 95px}.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.stat,.metric{padding:10px}.stat strong,.metric b{font-size:clamp(15px,4.2vw,21px)}.wrap input,.wrap textarea{font-size:16px}}
 </style></head>
 <body><main class="wrap"><a href="./index.html" class="back">← Назад в «Мой спорт»</a><div class="hero"><div class="muted">ИНТЕГРАЦИИ · GOOGLE HEALTH</div><h1>Сон, пульс и восстановление</h1><div class="muted">Данные Fitbit / Google Health. Чтение через Google OAuth; история сохраняется только в локальном хранилище «Мой спорт».</div></div>
 <div class="card"><h2>Подключение Google</h2><div id="connected" class="status">Google пока не подключён</div>
