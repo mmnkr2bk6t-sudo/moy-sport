@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1220"><title>Google Health — Мой спорт</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1220;color:#eef4fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:740px;margin:auto;padding:22px 15px 95px}a{color:#88dac2}.back{text-decoration:none;color:#8ce1c8;font-size:14px}.hero{padding:21px 18px;border-radius:20px;background:linear-gradient(130deg,#1d3949,#183b36);border:1px solid #365c65;margin:18px 0}.hero h1{font-size:26px;margin:9px 0}.muted{color:#a1b3c9;font-size:13px;line-height:1.55}.card{background:#152235;border:1px solid #2a4056;padding:16px;border-radius:17px;margin:14px 0}.card h2{font-size:19px;margin:0 0 12px}.btn{border:0;background:#7bdec0;color:#0d2723;font-weight:800;border-radius:12px;padding:13px 15px;cursor:pointer}.btn.secondary{background:#263e53;color:#e7f1ff}.btn:disabled{opacity:.4}.full{width:100%}.label{color:#abbbcc;font-size:12px;margin:12px 0 6px}input{width:100%;border-radius:11px;background:#101d2b;border:1px solid #43576e;color:#fff;padding:13px;font:inherit}.small{font-size:12px}.status{font-size:13px;color:#98dcca;margin:12px 0;white-space:pre-wrap;line-height:1.5}.steps{padding-left:23px;color:#c7d6e5;font-size:13px;line-height:1.7}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:13px;border-radius:13px;background:#1a3040}.metric b{display:block;font-size:20px;margin-top:8px}.metric span{font-size:12px;color:#a5b7c6}.hint{font-size:12px;color:#a6b6c8;line-height:1.55}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.hidden{display:none}.detail{border-top:1px solid #334559;padding:11px 0}.warn{color:#ffcf95}details summary{cursor:pointer;color:#93e1c6}.spacer{height:7px}.danger{background:#45303b;color:#ffc8d1} 
+</style></head>
+<body><main class="wrap"><a href="./index.html" class="back">← Назад в «Мой спорт»</a><div class="hero"><div class="muted">ИНТЕГРАЦИИ · GOOGLE HEALTH</div><h1>Сон, пульс и восстановление</h1><div class="muted">Данные Fitbit / Google Health. Чтение через Google OAuth; история сохраняется только в локальном хранилище «Мой спорт».</div></div>
+<div class="card"><h2>Подключение Google</h2><div id="connected" class="status">Google пока не подключён</div>
+<p class="hint">Для доступа нужен собственный Google Cloud OAuth Client ID. Это публичный идентификатор, не пароль и не Client Secret.</p>
+<ol class="steps"><li>Открой <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> и создай проект.</li><li>Включи <b>Google Health API</b>, настрой OAuth consent screen и добавь свою почту в Test users.</li><li>Создай OAuth Client ID типа <b>Web application</b>. В Authorized JavaScript origins добавь <b>https://mmnkr2bk6t-sudo.github.io</b>.</li><li>В Data access добавь права только на чтение: Activity &amp; Fitness, Sleep и Health Metrics &amp; Measurements.</li><li>Вставь ниже <b>Client ID</b> (не Client Secret). Затем нажми «Войти через Google».</li></ol>
+<div class="label">OAuth Client ID</div><input id="clientId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="xxxxxxxx.apps.googleusercontent.com"><div class="spacer"></div><button class="btn secondary full" id="saveClient">Сохранить Client ID на этом устройстве</button><div class="spacer"></div><button class="btn full" id="connect">Войти через Google</button>
+<div class="hint" style="margin-top:12px">Для iPhone при проблемах с окном входа открой эту страницу в Safari. Сервис Google запрашивает согласие отдельно; наш сайт не получает твой пароль.</div>
+<div id="status" class="status" aria-live="polite"></div></div>
+<div class="card"><h2>Синхронизация</h2><p class="hint">Получаем последние 14 дней. Пустые показатели не придумываем; доступность зависит от браслета и записи в Google Health. Для нового обновления доступа может потребоваться снова нажать «Войти».</p><button class="btn full" id="sync" disabled>↓ Загрузить данные из Google Health</button><p class="status" id="syncStatus" aria-live="polite"></p></div>
+<div class="card"><h2>Последние показатели</h2><div id="metrics" class="metrics"></div><div id="history"></div></div>
+<details class="card"><summary>Приватность и управление данными</summary><p class="hint">OAuth-токен хранится только в памяти открытой страницы и не включается в GitHub, резервные копии или отчёты ChatGPT. Client ID хранится в localStorage. Результаты синхронизации сохраняются на устройстве под общим ключом приложения. Отправка в ChatGPT происходит только через существующую кнопку отчёта. Раздел «Личное» не участвует в Google Health.</p><button id="deleteMetrics" class="btn secondary full">Удалить импортированные показатели</button><div class="spacer"></div><button id="disconnect" class="btn danger full">Забыть Client ID и отключить</button></details>
+</main><script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+'use strict';
+const KEY='my_sport_v1', ID_KEY='my_sport_google_client_id';
+const $=x=>document.getElementById(x);
+const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SCOPE=['https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly','https://www.googleapis.com/auth/googlehealth.sleep.readonly','https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly'].join(' ');
+let token=null,expires=0,tokenClient=null;
+$('clientId').value=localStorage.getItem(ID_KEY)||'';
+function setStatus(v){$('status').textContent=v}
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+function store(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function validateId(v){return /^[0-9]+-[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(v)}
+function shortDate(d){return String(d||'').slice(0,10)}
+function dateAgo(n){const d=new Date();d.setDate(d.getDate()-n);return d.toLocaleDateString('sv-SE')}
+function isNumber(x){return x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))}
+function valAt(obj,keys){for(const k of keys){const v=k.split('.').reduce((a,c)=>a?.[c],obj);if(isNumber(v))return Number(v)}return null}
+function metricsDate(p,type){
+ if(p[type]?.date)return shortDate(p[type].date);
+ if(p.date)return shortDate(p.date);
+ const o=p[type]||p,interval=o.interval||{};
+ const v=interval.civilEndTime||interval.endTime||o.sampleTime?.civilTime||o.sampleTime?.physicalTime||interval.civilStartTime||interval.startTime;
+ return shortDate(v);
+}
+function details(t,p){
+ const val=p[t]||{};
+ if(t==='daily-heart-rate-variability')return valAt(val,['rmssd','rmssdMilliseconds','heartRateVariabilityRmssd','value']);
+ if(t==='daily-resting-heart-rate')return valAt(val,['beatsPerMinute','restingHeartRateBeatsPerMinute','heartRate','value']);
+ if(t==='daily-oxygen-saturation')return valAt(val,['average','averagePercent','averagePercentage','averageOxygenSaturation','value']);
+ if(t==='sleep'){
+  const i=val.interval||{},start=i.startTime||i.civilStartTime,end=i.endTime||i.civilEndTime;
+  if(start&&end){const diff=(new Date(end)-new Date(start))/60000;return diff>0&&diff<1440?Math.round(diff):null}
+  return valAt(val,['durationMinutes','duration.seconds','minutesAsleep']);
+ }
+ return null;
+}
+function draw(){
+ const d=read(),days=(d?.googleHealthDays||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+ const latest=days.find(x=>x.sleepMin!==null||x.hrv!==null||x.restingHr!==null)||days[0];
+ const fields=[['Сон',latest?.sleepMin!==null&&latest?.sleepMin!==undefined?Math.floor(latest.sleepMin/60)+' ч '+Math.round(latest.sleepMin%60)+' мин':'—'],['HRV',latest?.hrv!==null&&latest?.hrv!==undefined?Math.round(latest.hrv)+' мс':'—'],['Пульс в покое',latest?.restingHr!==null&&latest?.restingHr!==undefined?Math.round(latest.restingHr)+' уд/мин':'—'],['SpO₂',latest?.spo2!==null&&latest?.spo2!==undefined?latest.spo2.toFixed(1)+'%':'—']];
+ $('metrics').innerHTML=fields.map(([k,v])=>'<div class="metric"><span>'+safe(k)+'</span><b>'+safe(v)+'</b></div>').join('');
+ $('history').innerHTML=days.length?'<p class="hint">Последняя запись: '+safe(latest?.date||'—')+'</p>'+days.slice(0,14).map(x=>'<div class="detail"><b>'+safe(x.date)+'</b><div class="hint">Сон '+(x.sleepMin!==null?Math.round(x.sleepMin)+' мин':'—')+' · HRV '+(x.hrv!==null?x.hrv+' мс':'—')+' · ЧСС покоя '+(x.restingHr!==null?x.restingHr:'—')+' · SpO₂ '+(x.spo2!==null?x.spo2+'%':'—')+'</div></div>').join(''):'<p class="hint">Нет импортированных данных. Сначала подключи Google и синхронизируй.</p>';
+}
+$('saveClient').onclick=()=>{
+ const id=$('clientId').value.trim();
+ if(!validateId(id))return setStatus('Проверь формат Google OAuth Client ID.');
+ localStorage.setItem(ID_KEY,id);setStatus('Client ID сохранён на этом iPhone. Теперь можно открыть вход Google.');
+};
+$('connect').onclick=()=>{
+ const id=$('clientId').value.trim();
+ if(!validateId(id))return setStatus('Сначала укажи OAuth Client ID типа Web application.');
+ if(!window.google?.accounts?.oauth2)return setStatus('Не загрузилась Google Identity Services. Проверь интернет и открой страницу в Safari.');
+ localStorage.setItem(ID_KEY,id);
+ tokenClient=google.accounts.oauth2.initTokenClient({client_id:id,scope:SCOPE,callback:r=>{
+  if(r.error){setStatus('Google OAuth: '+r.error);return}
+  token=r.access_token;expires=Date.now()+(Number(r.expires_in)||3600)*1000;
+  $('sync').disabled=false;$('connected').textContent='Google авторизован на этой странице ✓';
+  setStatus('Доступ получен. Теперь нажми «Загрузить данные».');
+ }});
+ tokenClient.requestAccessToken({prompt:'consent'});
+};
+async function list(type,field,from,to){
+ const filter=field+' >= "'+from+'" AND '+field+' < "'+to+'"';
+ const url='https://health.googleapis.com/v4/users/me/dataTypes/'+encodeURIComponent(type)+'/dataPoints';
+ let points=[],next='';
+ for(let i=0;i<5;i++){
+  const params=new URLSearchParams({filter,pageSize:'100'});if(next)params.set('pageToken',next);
+  const resp=await fetch(url+'?'+params,{headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});
+  if(!resp.ok){let message=String(resp.status);try{const body=await resp.json();message+=' '+String(body.error?.message||'').slice(0,140)}catch(e){}throw Error(type+': '+message)}
+  const body=await resp.json();points.push(...(body.dataPoints||[]));next=body.nextPageToken||'';if(!next)break;
+ }
+ return points;
+}
+$('sync').onclick=async()=>{
+ if(!token||Date.now()>expires-30000){$('sync').disabled=true;setStatus('Срок доступа истёк. Войди через Google ещё раз.');return}
+ const d=read();if(!d||!d.templates)return $('syncStatus').textContent='Не найдены данные «Мой спорт». Открой его сначала через главную страницу.';
+ $('sync').disabled=true;$('syncStatus').textContent='Читаю доступные показатели Google Health…';
+ try{
+  const start=dateAgo(13),end=dateAgo(-1);
+  const requests=[
+   ['daily-heart-rate-variability','daily_heart_rate_variability.date',start,end],
+   ['daily-resting-heart-rate','daily_resting_heart_rate.date',start,end],
+   ['daily-oxygen-saturation','daily_oxygen_saturation.date',start,end],
+   ['sleep','sleep.interval.civil_end_time',start,end]
+  ];
+  const results=await Promise.allSettled(requests.map(args=>list(...args)));
+  const byDate=new Map((d.googleHealthDays||[]).map(x=>[x.date,{...x}]));
+  let successes=0,counts=[],failures=[];
+  for(let i=0;i<requests.length;i++){
+   const type=requests[i][0],result=results[i];
+   if(result.status!=='fulfilled'){failures.push(String(result.reason?.message||result.reason));continue}
+   successes++;counts.push(type+': '+result.value.length);
+   for(const p of result.value){
+    const date=metricsDate(p,type);if(!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
+    const old=byDate.get(date)||{date,sleepMin:null,hrv:null,restingHr:null,spo2:null};
+    const v=details(type,p);
+    if(v===null)continue;
+    if(type==='daily-heart-rate-variability')old.hrv=v;
+    if(type==='daily-resting-heart-rate')old.restingHr=v;
+    if(type==='daily-oxygen-saturation')old.spo2=v;
+    if(type==='sleep')old.sleepMin=Math.max(v,old.sleepMin||0);
+    byDate.set(date,old);
+   }
+  }
+  if(!successes)throw Error('Не удалось прочитать данные. '+failures.join('; '));
+  d.googleHealthDays=[...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,365);
+  d.googleHealthLastSync=new Date().toISOString();store(d);
+  draw();$('syncStatus').textContent='Синхронизация завершена. '+counts.join(' · ')+(failures.length?'\nНе прочитаны: '+failures.join('; '):'')+'\nЕсли показатель пустой, он отсутствует в ответе Google или ещё не распознан.';
+ }catch(e){$('syncStatus').textContent='Ошибка: '+String(e.message||e)}
+ finally{$('sync').disabled=!(token&&Date.now()<expires-30000)}
+};
+$('deleteMetrics').onclick=()=>{
+ if(!confirm('Удалить импортированные показатели Google Health с этого устройства?'))return;
+ const d=read();if(!d)return;delete d.googleHealthDays;delete d.googleHealthLastSync;store(d);draw();
+};
+$('disconnect').onclick=()=>{
+ token=null;expires=0;tokenClient=null;$('sync').disabled=true;localStorage.removeItem(ID_KEY);$('clientId').value='';$('connected').textContent='Google отключён на этой странице';setStatus('Client ID удалён. Данные, уже сохранённые в дневнике, остаются до отдельного удаления.');
+};
+draw();
+</script></body></html>
