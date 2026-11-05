@@ -78,7 +78,7 @@ body{width:100%;max-width:100%;overflow-x:clip}
  #measurements .card,#measurements .measure-reminder{padding:12px}
 }
 
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.16</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.17</span></header>
 <section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -94,11 +94,10 @@ const defaults={
   {name:'Разгибание рук с канатом',weight:'17.5',sets:2,goal:'10–15'},
   {name:'Подъём гантелей на бицепс',weight:'12',sets:2,goal:'10–15'}],
  'Lower A':[
-  {name:'Приседания со штангой',weight:'60',sets:3,goal:'8–10'},
-  {name:'Румынская тяга',weight:'60',sets:3,goal:'8–12'},
-  {name:'Жим ногами',weight:'100',sets:2,goal:'10–12'},
-  {name:'Сгибание ног в тренажёре',weight:'64',sets:3,goal:'10–12'},
-  {name:'Икры сидя',weight:'30',sets:3,goal:'12–15'}],
+  {name:'Приседания со штангой',weight:'45',sets:3,goal:'8'},
+  {name:'Румынская тяга',weight:'45',sets:2,goal:'10'},
+  {name:'Жим ногами',weight:'85',sets:2,goal:'12'},
+  {name:'Икры сидя',weight:'27.5',sets:3,goal:'12–15'}],
  'Upper B':[
   {name:'Жим гантелей лёжа',weight:'',sets:3,goal:'8–12'},
   {name:'Тяга верхнего блока',weight:'55',sets:3,goal:'8–12'},
@@ -117,6 +116,31 @@ const defaults={
 const copy=x=>JSON.parse(JSON.stringify(x));
 function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
 let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.templates)throw Error('Invalid');}catch(e){data=initial()}
+// 2026-11-05: one-time return-to-training Lower A plan update.
+// Update only planned weights, never completed sessions; retain any logged sets.
+(function applyLowerAReturnPlan(){
+ const marker='my_sport_lower_a_20261105_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const target=defaults['Lower A'];
+ const update=arr=>{
+  if(!Array.isArray(arr))return;
+  for(const ex of arr){
+   const p=target.find(x=>x.name===ex.name);
+   if(!p)continue;
+   ex.weight=p.weight;
+   ex.goal=p.goal;
+   ex.sets=p.sets;
+   if(Array.isArray(ex.reps))ex.reps=Array.from({length:Math.max(p.sets,ex.reps.filter((v,i)=>v!==''||(ex.rirs||[])[i]!=='').length)},(_,i)=>ex.reps[i]??'');
+   if(Array.isArray(ex.rirs))ex.rirs=Array.from({length:ex.reps.length},(_,i)=>ex.rirs[i]??'');
+  }
+  // Remove obsolete hamstring curl only when no results have been entered.
+  const idx=arr.findIndex(x=>x.name==='Сгибание ног в тренажёре');
+  if(idx>=0 && (!Array.isArray(arr[idx].reps)||arr[idx].reps.every(v=>v==='')) && !arr[idx].comment)arr.splice(idx,1);
+ };
+ update(data.templates['Lower A']);
+ if(data.drafts?.['Lower A'])update(data.drafts['Lower A'].exercises);
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('Не удалось сохранить данные в браузере. Скопируй резервную копию.');return false}}
 function today(){return new Date().toLocaleDateString('sv-SE')}
