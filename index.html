@@ -39,7 +39,7 @@
 .nutrition-progress{height:7px;margin-top:12px;background:#33514f;border-radius:10px;overflow:hidden}
 .nutrition-progress>div{background:#80d9b8;height:100%;border-radius:10px}
 .gh-home-entry{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;color:#e4f0fa;margin:10px 0;padding:14px 16px;border:1px solid #344f68;background:#172739;border-radius:14px}.gh-home-entry b{font-size:14px}.gh-home-entry span{color:#8dd9c3;font-size:20px}
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.14</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.15</span></header>
 <section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -444,9 +444,11 @@ function report(){
   t.push(fmt(day.date)+': '+day.kcal+' ккал | белки '+day.protein+' г | жиры '+day.fat+' г | углеводы '+day.carbs+' г'+(day.confirmed===false?' [НЕ ПОДТВЕРЖДЕНО]':''));
   if(Array.isArray(day.meals))for(const m of day.meals)t.push('  • '+(m.name||'Приём пищи')+(m.kcal!==undefined?' — '+m.kcal+' ккал':''));
  }
- t.push('','GOOGLE HEALTH — СОН И ВОССТАНОВЛЕНИЕ');
- const gdays=(data.googleHealthDays||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
- if(!gdays.length)t.push('Google Health ещё не подключён или данные не импортированы');
+ t.push('','GOOGLE HEALTH — СОН И ВОССТАНОВЛЕНИЕ (последние 30 дней)');
+ const ghCutoff=new Date();ghCutoff.setDate(ghCutoff.getDate()-29);
+ const ghStart=ghCutoff.toLocaleDateString('sv-SE');
+ const gdays=(data.googleHealthDays||[]).filter(p=>p.date>=ghStart&&p.date<=today()).slice().sort((a,b)=>b.date.localeCompare(a.date));
+ if(!gdays.length)t.push('За последние 30 дней измерений Google Health нет');
  else{
   if(data.googleHealthLastSync)t.push('Последняя синхронизация: '+data.googleHealthLastSync);
   for(const p of gdays){
