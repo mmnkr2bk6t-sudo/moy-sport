@@ -49,12 +49,20 @@ function details(t,p){
  }
  return null;
 }
+function staleStatus(days){
+ const newest=days.filter(x=>x&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(x.date)&&[x.sleepMin,x.hrv,x.restingHr,x.spo2].some(v=>v!==null&&v!==undefined)).sort((a,b)=>b.date.localeCompare(a.date))[0];
+ if(!newest)return 'Пока нет распознанных измерений. Проверь, синхронизируется ли браслет с Google Health.';
+ const todayDate=new Date();todayDate.setHours(12,0,0,0);
+ const day=new Date(newest.date+'T12:00:00');
+ const age=Math.max(0,Math.floor((todayDate-day)/86400000));
+ return age>=3?'⚠ Последние данные за '+newest.date+' ('+age+' дн. назад). Авторизация работает, но новые измерения ещё не поступили. Проверь синхронизацию браслета в Google Health.':'Последние данные за '+newest.date+'.';
+}
 function draw(){
  const d=read(),days=(d?.googleHealthDays||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
- const latest=days.find(x=>x.sleepMin!==null||x.hrv!==null||x.restingHr!==null)||days[0];
+ const latest=days.find(x=>[x.sleepMin,x.hrv,x.restingHr,x.spo2].some(v=>v!==null&&v!==undefined))||days[0];
  const fields=[['Сон',latest?.sleepMin!==null&&latest?.sleepMin!==undefined?Math.floor(latest.sleepMin/60)+' ч '+Math.round(latest.sleepMin%60)+' мин':'—'],['HRV',latest?.hrv!==null&&latest?.hrv!==undefined?Math.round(latest.hrv)+' мс':'—'],['Пульс в покое',latest?.restingHr!==null&&latest?.restingHr!==undefined?Math.round(latest.restingHr)+' уд/мин':'—'],['SpO₂',latest?.spo2!==null&&latest?.spo2!==undefined?latest.spo2.toFixed(1)+'%':'—']];
  $('metrics').innerHTML=fields.map(([k,v])=>'<div class="metric"><span>'+safe(k)+'</span><b>'+safe(v)+'</b></div>').join('');
- $('history').innerHTML=days.length?'<p class="hint">Последняя запись: '+safe(latest?.date||'—')+'</p>'+days.slice(0,14).map(x=>'<div class="detail"><b>'+safe(x.date)+'</b><div class="hint">Сон '+(x.sleepMin!==null?Math.round(x.sleepMin)+' мин':'—')+' · HRV '+(x.hrv!==null?x.hrv+' мс':'—')+' · ЧСС покоя '+(x.restingHr!==null?x.restingHr:'—')+' · SpO₂ '+(x.spo2!==null?x.spo2+'%':'—')+'</div></div>').join(''):'<p class="hint">Нет импортированных данных. Сначала подключи Google и синхронизируй.</p>';
+ $('history').innerHTML=days.length?'<p class="hint">'+safe(staleStatus(days))+'</p>'+days.slice(0,14).map(x=>'<div class="detail"><b>'+safe(x.date)+'</b><div class="hint">Сон '+(x.sleepMin!==null?Math.round(x.sleepMin)+' мин':'—')+' · HRV '+(x.hrv!==null?x.hrv+' мс':'—')+' · ЧСС покоя '+(x.restingHr!==null?x.restingHr:'—')+' · SpO₂ '+(x.spo2!==null?x.spo2+'%':'—')+'</div></div>').join(''):'<p class="hint">Нет импортированных данных. Сначала подключи Google и синхронизируй.</p>';
 }
 $('saveClient').onclick=()=>{
  const id=$('clientId').value.trim();
@@ -120,7 +128,7 @@ $('sync').onclick=async()=>{
   if(!successes)throw Error('Не удалось прочитать данные. '+failures.join('; '));
   d.googleHealthDays=[...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,365);
   d.googleHealthLastSync=new Date().toISOString();store(d);
-  draw();$('syncStatus').textContent='Синхронизация завершена. '+counts.join(' · ')+(failures.length?'\nНе прочитаны: '+failures.join('; '):'')+'\nЕсли все счётчики равны нулю, проверь историю в Google Health и синхронизацию браслета. Доступ Google получен, но измерения пока не найдены.';
+  draw();$('syncStatus').textContent='Синхронизация завершена. '+counts.join(' · ')+(failures.length?'\nНе прочитаны: '+failures.join('; '):'')+'\n'+staleStatus(d.googleHealthDays);
  }catch(e){$('syncStatus').textContent='Ошибка: '+String(e.message||e)}
  finally{$('sync').disabled=!(token&&Date.now()<expires-30000)}
 };
