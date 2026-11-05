@@ -26,26 +26,26 @@ function setStatus(v){$('status').textContent=v}
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
 function store(d){localStorage.setItem(KEY,JSON.stringify(d))}
 function validateId(v){return /^[0-9]+-[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(v)}
-function shortDate(d){return String(d||'').slice(0,10)}
+function shortDate(d){if(d&&typeof d==='object'&&Number(d.year)&&Number(d.month)&&Number(d.day))return String(d.year).padStart(4,'0')+'-'+String(d.month).padStart(2,'0')+'-'+String(d.day).padStart(2,'0');return String(d||'').slice(0,10)}
 function dateAgo(n){const d=new Date();d.setDate(d.getDate()-n);return d.toLocaleDateString('sv-SE')}
 function isNumber(x){return x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))}
 function valAt(obj,keys){for(const k of keys){const v=k.split('.').reduce((a,c)=>a?.[c],obj);if(isNumber(v))return Number(v)}return null}
 function metricsDate(p,type){
- if(p[type]?.date)return shortDate(p[type].date);
+ const key=type.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());if(p[key]?.date)return shortDate(p[key].date);
  if(p.date)return shortDate(p.date);
- const o=p[type]||p,interval=o.interval||{};
+ const o=p[key]||p,interval=o.interval||{};
  const v=interval.civilEndTime||interval.endTime||o.sampleTime?.civilTime||o.sampleTime?.physicalTime||interval.civilStartTime||interval.startTime;
  return shortDate(v);
 }
 function details(t,p){
- const val=p[t]||{};
- if(t==='daily-heart-rate-variability')return valAt(val,['rmssd','rmssdMilliseconds','heartRateVariabilityRmssd','value']);
- if(t==='daily-resting-heart-rate')return valAt(val,['beatsPerMinute','restingHeartRateBeatsPerMinute','heartRate','value']);
- if(t==='daily-oxygen-saturation')return valAt(val,['average','averagePercent','averagePercentage','averageOxygenSaturation','value']);
+ const key=t.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());const val=p[key]||{};
+ if(t==='daily-heart-rate-variability')return valAt(val,['averageHeartRateVariabilityMilliseconds','deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds']);
+ if(t==='daily-resting-heart-rate')return valAt(val,['beatsPerMinute']);
+ if(t==='daily-oxygen-saturation')return valAt(val,['averagePercentage']);
  if(t==='sleep'){
   const i=val.interval||{},start=i.startTime||i.civilStartTime,end=i.endTime||i.civilEndTime;
   if(start&&end){const diff=(new Date(end)-new Date(start))/60000;return diff>0&&diff<1440?Math.round(diff):null}
-  return valAt(val,['durationMinutes','duration.seconds','minutesAsleep']);
+  return valAt(val,['summary.minutesAsleep','summary.minutesToFallAsleep']);
  }
  return null;
 }
