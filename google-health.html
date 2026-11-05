@@ -10,7 +10,7 @@
 <div class="label">OAuth Client ID</div><input id="clientId" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="xxxxxxxx.apps.googleusercontent.com"><div class="spacer"></div><button class="btn secondary full" id="saveClient">Сохранить Client ID на этом устройстве</button><div class="spacer"></div><button class="btn full" id="connect">Войти через Google</button>
 <div class="hint" style="margin-top:12px">Для iPhone при проблемах с окном входа открой эту страницу в Safari. Сервис Google запрашивает согласие отдельно; наш сайт не получает твой пароль.</div>
 <div id="status" class="status" aria-live="polite"></div></div>
-<div class="card"><h2>Синхронизация</h2><p class="hint">Получаем последние 14 дней. Пустые показатели не придумываем; доступность зависит от браслета и записи в Google Health. Для нового обновления доступа может потребоваться снова нажать «Войти».</p><button class="btn full" id="sync" disabled>↓ Загрузить данные из Google Health</button><p class="status" id="syncStatus" aria-live="polite"></p></div>
+<div class="card"><h2>Синхронизация</h2><p class="hint">Получаем последние 90 дней. Пустые показатели не придумываем; доступность зависит от браслета и записи в Google Health. Для нового обновления доступа может потребоваться снова нажать «Войти».</p><button class="btn full" id="sync" disabled>↓ Загрузить данные из Google Health</button><p class="status" id="syncStatus" aria-live="polite"></p></div>
 <div class="card"><h2>Последние показатели</h2><div id="metrics" class="metrics"></div><div id="history"></div></div>
 <details class="card"><summary>Приватность и управление данными</summary><p class="hint">OAuth-токен хранится только в памяти открытой страницы и не включается в GitHub, резервные копии или отчёты ChatGPT. Client ID хранится в localStorage. Результаты синхронизации сохраняются на устройстве под общим ключом приложения. Отправка в ChatGPT происходит только через существующую кнопку отчёта. Раздел «Личное» не участвует в Google Health.</p><button id="deleteMetrics" class="btn secondary full">Удалить импортированные показатели</button><div class="spacer"></div><button id="disconnect" class="btn danger full">Забыть Client ID и отключить</button></details>
 </main><script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -91,12 +91,12 @@ $('sync').onclick=async()=>{
  const d=read();if(!d||!d.templates)return $('syncStatus').textContent='Не найдены данные «Мой спорт». Открой его сначала через главную страницу.';
  $('sync').disabled=true;$('syncStatus').textContent='Читаю доступные показатели Google Health…';
  try{
-  const start=dateAgo(13),end=dateAgo(-1);
+  const start=dateAgo(89),end=dateAgo(-1);
   const requests=[
    ['daily-heart-rate-variability','daily_heart_rate_variability.date',start,end],
    ['daily-resting-heart-rate','daily_resting_heart_rate.date',start,end],
    ['daily-oxygen-saturation','daily_oxygen_saturation.date',start,end],
-   ['sleep','sleep.interval.civil_end_time',start,end]
+   ['sleep','sleep.interval.civil_end_time',start+'T00:00:00',end+'T00:00:00']
   ];
   const results=await Promise.allSettled(requests.map(args=>list(...args)));
   const byDate=new Map((d.googleHealthDays||[]).map(x=>[x.date,{...x}]));
@@ -120,7 +120,7 @@ $('sync').onclick=async()=>{
   if(!successes)throw Error('Не удалось прочитать данные. '+failures.join('; '));
   d.googleHealthDays=[...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,365);
   d.googleHealthLastSync=new Date().toISOString();store(d);
-  draw();$('syncStatus').textContent='Синхронизация завершена. '+counts.join(' · ')+(failures.length?'\nНе прочитаны: '+failures.join('; '):'')+'\nЕсли показатель пустой, он отсутствует в ответе Google или ещё не распознан.';
+  draw();$('syncStatus').textContent='Синхронизация завершена. '+counts.join(' · ')+(failures.length?'\nНе прочитаны: '+failures.join('; '):'')+'\nЕсли все счётчики равны нулю, проверь историю в Google Health и синхронизацию браслета. Доступ Google получен, но измерения пока не найдены.';
  }catch(e){$('syncStatus').textContent='Ошибка: '+String(e.message||e)}
  finally{$('sync').disabled=!(token&&Date.now()<expires-30000)}
 };
