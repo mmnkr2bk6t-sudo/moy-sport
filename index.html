@@ -78,7 +78,20 @@ body{width:100%;max-width:100%;overflow-x:clip}
  #measurements .card,#measurements .measure-reminder{padding:12px}
 }
 
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.18</span></header>
+
+.weight-home-card{margin:14px 0;background:#172a3b;border:1px solid #35536a;border-radius:17px;padding:16px;max-width:100%;min-width:0}
+.weight-kicker{color:#8cddc3;font-size:11px;font-weight:850;letter-spacing:.07em}
+.weight-home-number{font-size:29px;font-weight:800;margin:7px 0 0;line-height:1.2}
+.weight-home-number span{font-size:14px;font-weight:500;color:#b0c5d4}
+.weight-target{font-size:11px;color:#c5e9dc;background:#254f4c;padding:7px 9px;border-radius:10px;white-space:nowrap}
+.weight-home-card .row{gap:8px;flex-wrap:wrap}
+.weight-home-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 12px}
+.weight-home-fields>div{min-width:0}
+.weight-home-fields input{display:block;width:100%;max-width:100%;font-size:16px}
+.weight-home-history{margin-top:13px}
+.weight-recent-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #324657;font-size:13px}
+@media(max-width:360px){.weight-home-fields{grid-template-columns:minmax(0,1fr)}}
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.19</span></header>
 <section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -220,7 +233,35 @@ function nutritionHomeCard(){
  const macros=entry?'Б '+Math.round(Number(entry.protein)||0)+' г · Ж '+Math.round(Number(entry.fat)||0)+' г · У '+Math.round(Number(entry.carbs)||0)+' г':'Подтверждённые итоги дня и история питания';
  return '<a class="nutrition-home-card" href="./nutrition.html" aria-label="Открыть дневник питания"><div class="row between"><div><div class="nutrition-eyebrow">🥗 ПИТАНИЕ</div><div class="nutrition-home-title">'+(calories===null?'Начать вести питание':calories.toLocaleString('ru-RU')+' <span>ккал</span>')+'</div><div class="nutrition-home-sub">'+esc(caption)+' · '+esc(macros)+'</div></div><div class="nutrition-go">↗</div></div>'+(calories===null?'':'<div class="nutrition-progress"><div style="width:'+progress+'%"></div></div>')+'</a>';
 }
-function renderHome(){const recent=data.workouts[0];const recentSport=data.activities[0];const recentSteps=data.steps[0];$('#home').innerHTML=`<div class="hero"><div class="muted small">Твой текущий ориентир</div><h2>Возвращаем регулярность</h2><div class="row between"><div><span class="big">87</span> кг<br><span class="small muted">Ориентир: 86–88 кг</span></div><div class="right"><span class="big">${count()}</span><br><span class="small muted">силовых записано</span></div></div></div>${nutritionHomeCard()}<div class="motivation-card"><div class="motivation-top"><span>✦ ${esc(currentMotivation.tag)}</span><span class="motivation-label">ТВОЙ ИМПУЛЬС</span></div><div class="motivation-text">${esc(currentMotivation.text)}</div><button class="motivation-refresh" onclick="refreshMotivation()" type="button" aria-label="Другая мысль">↻ Другая мысль</button></div><a href="./google-health.html" class="gh-home-entry"><div><b>♡ Google Health</b><div class="hint">${(data.googleHealthDays||[]).length?'Последние показатели синхронизированы · '+(data.googleHealthDays||[]).length+' дн.':'Сон, HRV и пульс в покое · подключить'}</div></div><span>↗</span></a><h3 class="section">Быстрый старт</h3><div class="grid">${Object.keys(data.templates).map(n=>`<button class="card" style="text-align:left;margin:0;color:#fff" onclick="goWorkout('${n}')"><div class="muted small">${n.startsWith('Upper')?'Верх тела':'Низ тела'}</div><h3 class="compact">${n}</h3><span class="small" style="color:#80ddbd">Начать →</span></button>`).join('')}</div><h3 class="section">Календарь тренировок</h3>${trainingCalendarMarkup()}<h3 class="section">Последняя активность</h3><div class="card">${recent?`<div class="row between"><div><b>${esc(recent.name)}</b><div class="muted small">${fmt(recent.date)} · ${recent.exercises.length} упражнений</div></div><span class="badge">Сохранено</span></div>`:'<div class="muted">Пока нет силовых тренировок</div>'}<hr style="border:0;border-top:1px solid #2e4154;margin:14px 0"><div class="row between"><div>Занятия</div><div class="muted">${recentSport?esc(sportName(recentSport))+' · '+fmt(recentSport.date):'Нет записей'}</div></div><div class="row between" style="margin-top:12px"><div>Шаги</div><div class="muted">${recentSteps?fmt(recentSteps.date)+' · '+Number(recentSteps.count).toLocaleString('ru-RU'):'Нет записей'}</div></div></div><div class="notice">Первые 2 недели: 2 облегчённые силовые + умеренная активность по самочувствию. Когда войдёшь в ритм — вернём 4 силовые.</div>`}
+
+function weightHomeCard(){
+ const recent=(data.bodyweight||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+ const last=recent[0];
+ const recentRows=recent.slice(0,3).map(x=>'<div class="weight-recent-row"><span>'+fmt(x.date)+'</span><b>'+esc(x.weight)+' кг</b></div>').join('');
+ const current=(data.bodyweight||[]).find(x=>x.date===today());
+ return '<div class="weight-home-card"><div class="row between"><div><div class="weight-kicker">⚖️ ВЕС ТЕЛА</div><div class="weight-home-number">'+(last?esc(last.weight)+' <span>кг</span>':'Нет записей')+'</div><div class="hint">'+(last?'Последнее взвешивание · '+fmt(last.date):'Цель: 86–88 кг · начни с первого измерения')+'</div></div><span class="weight-target">Цель 86–88 кг</span></div>'+
+ '<form id="quickWeightForm" onsubmit="saveQuickWeight(event)"><div class="weight-home-fields"><div><label class="label" for="quickWeightDate">Дата</label><input id="quickWeightDate" name="date" type="date" value="'+today()+'" max="'+today()+'" required onchange="loadQuickWeightDate(this.value)"></div><div><label class="label" for="quickWeightValue">Вес, кг</label><input id="quickWeightValue" name="weight" type="number" min="20" max="350" step="0.1" inputmode="decimal" placeholder="Например, 87.0" value="'+(current?esc(current.weight):'')+'" required></div></div><button class="btn full" type="submit">'+(current?'Обновить вес за сегодня':'＋ Записать вес')+'</button><p id="quickWeightStatus" class="hint" aria-live="polite">Запись за выбранную дату можно изменить и сохранить повторно.</p></form>'+
+ (recentRows?'<details class="weight-home-history"><summary>Последние измерения</summary>'+recentRows+'</details>':'')+'</div>';
+}
+window.loadQuickWeightDate=date=>{
+ const form=document.getElementById('quickWeightForm');if(!form)return;
+ const current=(data.bodyweight||[]).find(x=>x.date===date);
+ form.elements.weight.value=current?.weight||'';
+ form.querySelector('button[type=submit]').textContent=current?'Обновить вес за '+fmt(date):'＋ Записать вес';
+ const state=document.getElementById('quickWeightStatus');if(state)state.textContent=current?'За этот день вес уже записан. Можешь его изменить.':'';
+};
+window.saveQuickWeight=event=>{
+ event.preventDefault();
+ const f=event.currentTarget,date=f.elements.date.value,raw=String(f.elements.weight.value).replace(',','.'),weight=Number(raw);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date>today()||!Number.isFinite(weight)||weight<20||weight>350){alert('Проверь дату и вес (20–350 кг).');return}
+ const old=copy(data.bodyweight||[]);
+ data.bodyweight=old.filter(x=>x.date!==date).concat([{date,weight:String(weight)}]).sort((a,b)=>b.date.localeCompare(a.date));
+ if(!save()){data.bodyweight=old;return}
+ renderHome();renderRecords();renderActivity();
+ const status=document.getElementById('quickWeightStatus');
+ if(status)status.textContent='✓ '+fmt(date)+': '+weight.toLocaleString('ru-RU')+' кг. Вес сохранён в дневник и попадёт в полный отчёт.';
+};
+function renderHome(){const recent=data.workouts[0];const recentSport=data.activities[0];const recentSteps=data.steps[0];$('#home').innerHTML=`<div class="hero"><div class="muted small">Твой текущий ориентир</div><h2>Возвращаем регулярность</h2><div class="row between"><div>${data.bodyweight?.length?'<span class="big">'+esc(data.bodyweight.slice().sort((a,b)=>b.date.localeCompare(a.date))[0].weight)+'</span> кг':'<span class="big">—</span> кг'}<br><span class="small muted">Ориентир: 86–88 кг</span></div><div class="right"><span class="big">${count()}</span><br><span class="small muted">силовых записано</span></div></div></div>${weightHomeCard()}${nutritionHomeCard()}<div class="motivation-card"><div class="motivation-top"><span>✦ ${esc(currentMotivation.tag)}</span><span class="motivation-label">ТВОЙ ИМПУЛЬС</span></div><div class="motivation-text">${esc(currentMotivation.text)}</div><button class="motivation-refresh" onclick="refreshMotivation()" type="button" aria-label="Другая мысль">↻ Другая мысль</button></div><a href="./google-health.html" class="gh-home-entry"><div><b>♡ Google Health</b><div class="hint">${(data.googleHealthDays||[]).length?'Последние показатели синхронизированы · '+(data.googleHealthDays||[]).length+' дн.':'Сон, HRV и пульс в покое · подключить'}</div></div><span>↗</span></a><h3 class="section">Быстрый старт</h3><div class="grid">${Object.keys(data.templates).map(n=>`<button class="card" style="text-align:left;margin:0;color:#fff" onclick="goWorkout('${n}')"><div class="muted small">${n.startsWith('Upper')?'Верх тела':'Низ тела'}</div><h3 class="compact">${n}</h3><span class="small" style="color:#80ddbd">Начать →</span></button>`).join('')}</div><h3 class="section">Календарь тренировок</h3>${trainingCalendarMarkup()}<h3 class="section">Последняя активность</h3><div class="card">${recent?`<div class="row between"><div><b>${esc(recent.name)}</b><div class="muted small">${fmt(recent.date)} · ${recent.exercises.length} упражнений</div></div><span class="badge">Сохранено</span></div>`:'<div class="muted">Пока нет силовых тренировок</div>'}<hr style="border:0;border-top:1px solid #2e4154;margin:14px 0"><div class="row between"><div>Занятия</div><div class="muted">${recentSport?esc(sportName(recentSport))+' · '+fmt(recentSport.date):'Нет записей'}</div></div><div class="row between" style="margin-top:12px"><div>Шаги</div><div class="muted">${recentSteps?fmt(recentSteps.date)+' · '+Number(recentSteps.count).toLocaleString('ru-RU'):'Нет записей'}</div></div></div><div class="notice">Первые 2 недели: 2 облегчённые силовые + умеренная активность по самочувствию. Когда войдёшь в ритм — вернём 4 силовые.</div>`}
 window.goWorkout=n=>{data.current=n;save();selectTab('train')};
 function ensureSetWeights(ex){
  if(!Array.isArray(ex.setWeights))ex.setWeights=Array.from({length:ex.reps.length},()=>String(ex.weight??''));
