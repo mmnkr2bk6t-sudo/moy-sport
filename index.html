@@ -103,7 +103,7 @@ body{width:100%;max-width:100%;overflow-x:clip}
 .morning-home{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;background:#183931;color:#e9fff4;border:1px solid #37735e;border-radius:16px;padding:14px 16px;margin:12px 0;font:inherit;gap:10px}
 .morning-home strong{display:block;font-size:16px}.morning-home span{font-size:12px;color:#afd3c8}
 @media(max-width:365px){.morning-art{flex-basis:82px;width:82px;height:90px}.morning-exercise{gap:9px;padding:10px}.morning-info h3{font-size:14px}}
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.22</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.23</span></header>
 <section id="home"></section><section id="morning" class="hidden"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="morning"><b>☀</b>Зарядка</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -193,6 +193,7 @@ function render(){renderHome();renderMorning();renderTrain();renderActivity();re
 
 
 const morningCatalog={
+ plank:{name:'Планка на предплечьях',dose:'20–30 секунд',desc:'Опирайся на предплечья и носки, держи корпус ровным. Не задерживай дыхание. При дискомфорте в плече или локте пропусти.',art:'plank'},
  open:{name:'Раскрытие грудного отдела',dose:'6–8 раз на сторону',desc:'Лёжа на боку плавно раскрывай верхнюю руку и грудную клетку. Без болезненного натяжения в плече.',art:'open'},
  cat:{name:'Кошка — корова',dose:'8–10 повторений',desc:'На четвереньках плавно округляй и разгибай спину без рывков.',art:'cat'},
  shoulders:{name:'Круги плечами',dose:'8 вперёд и 8 назад',desc:'Стоя медленно вращай плечами в небольшой комфортной амплитуде.',art:'shoulders'},
@@ -206,13 +207,14 @@ const morningCatalog={
 };
 // Чередование по календарным дням, не по количеству открытий: порядок стабилен весь день.
 const morningSets=[
- {name:'Раскрытие и дыхание',ids:['open','cat','shoulders','breath']},
- {name:'Мягкая мобильность',ids:['rotation','pelvis','ankles','scapula']},
- {name:'Свободное движение',ids:['side','cat','neck','breath']}
+ {name:'Раскрытие и дыхание',ids:['open','cat','breath','plank']},
+ {name:'Мягкая мобильность',ids:['rotation','pelvis','scapula','plank']},
+ {name:'Свободное движение',ids:['side','neck','breath','plank']}
 ];
 function morningSet(date){const day=Math.floor(Date.parse(date+'T12:00:00Z')/86400000);return morningSets[((day%morningSets.length)+morningSets.length)%morningSets.length]}
 function morningExercisesFor(date){return morningSet(date).ids.map(id=>({id,...morningCatalog[id]}))}
 const morningArt={
+ plank:'<svg viewBox="0 0 120 100" role="img" aria-label="Планка на предплечьях, ровная линия корпуса"><path d="M9 82H111" stroke="#537d84" stroke-width="2"/><circle cx="21" cy="45" r="9" fill="#e8c8a8"/><path d="M31 50L67 59L101 69" fill="none" stroke="#83dcb8" stroke-width="10" stroke-linecap="round"/><path d="M38 51L33 77L16 78M69 61L105 80" fill="none" stroke="#7faad9" stroke-width="7" stroke-linecap="round"/><path d="M32 37L104 60" stroke="#eac46c" stroke-width="2" stroke-dasharray="4 3"/></svg>',
  open:'<svg viewBox="0 0 120 100" role="img" aria-label="Раскрытие груди лёжа на боку"><path d="M13 78H109" stroke="#537d84" stroke-width="2"/><circle cx="31" cy="63" r="10" fill="#dfc0a4"/><path d="M42 64L75 66L95 78M75 66L94 57" fill="none" stroke="#82d7b7" stroke-width="8" stroke-linecap="round"/><path d="M54 62L63 34L94 17" fill="none" stroke="#82d7b7" stroke-width="7" stroke-linecap="round"/><path d="M55 64L83 68" stroke="#7facdf" stroke-width="6" stroke-linecap="round"/><path d="M75 20Q88 13 100 23" fill="none" stroke="#f6d27c" stroke-width="2" stroke-dasharray="3 3"/></svg>',
  cat:'<svg viewBox="0 0 120 100" role="img" aria-label="Кошка-корова на четвереньках"><circle cx="24" cy="42" r="10" fill="#e8c8a8"/><path d="M35 42Q59 17 87 43" fill="none" stroke="#83dcb8" stroke-width="8" stroke-linecap="round"/><path d="M36 44L32 78M84 44L90 78M86 45L104 65" fill="none" stroke="#83dcb8" stroke-width="8" stroke-linecap="round"/><path d="M20 82H43M78 82H106" stroke="#86aab8" stroke-width="4" stroke-linecap="round"/></svg>',
  shoulders:'<svg viewBox="0 0 120 100" role="img" aria-label="Круговые движения плечами"><circle cx="60" cy="22" r="12" fill="#e8c8a8"/><path d="M41 40L79 40L83 80L37 80Z" fill="#82d7b7"/><path d="M39 45L25 70M81 45L95 70" stroke="#7facdf" stroke-width="8" stroke-linecap="round"/><path d="M20 42Q19 18 43 22M100 42Q101 18 77 22" fill="none" stroke="#f6d27c" stroke-width="3" stroke-dasharray="4 3"/></svg>',
@@ -231,7 +233,7 @@ function renderMorning(){
  const date=today(),routine=morningExercisesFor(date),rec=morningRecord(date),done=rec?.done||[],n=morningCount(date);
  const recent=(data.morningDays||[]).filter(x=>x.done?.length).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
  const list=routine.map((x,i)=>'<article class="morning-exercise '+(done.includes(x.id)?'is-done':'')+'"><div class="morning-art">'+morningArt[x.art]+'</div><div class="morning-info"><div class="small muted">УПРАЖНЕНИЕ '+(i+1)+'/4</div><h3>'+x.name+'</h3><b class="small">'+x.dose+'</b><p>'+x.desc+'</p><label class="morning-check"><input type="checkbox" data-morning-id="'+x.id+'" '+(done.includes(x.id)?'checked':'')+' aria-label="Выполнено: '+x.name+'"><span>'+(done.includes(x.id)?'Выполнено':'Отметить выполнение')+'</span></label></div></article>').join('');
- document.getElementById('morning').innerHTML='<div class="morning-top"><span class="small" style="color:#99e6ca">УТРЕННИЙ РИТУАЛ · '+fmt(date)+'</span><h2>☀ '+morningSet(date).name+'</h2><p class="small" style="color:#bbd3cf;line-height:1.5">Сегодня 4 мягких упражнения · 5–7 минут. Завтра будет другая подборка. Без силовой нагрузки и без боли.</p><div class="morning-progress"><div style="width:'+(n*25)+'%"></div></div><b>'+n+' из 4 выполнено'+(n===4?' · Готово!':'')+'</b></div>'+list+'<div class="card"><b>История зарядки</b><p class="hint">'+(recent.length?recent.map(x=>fmt(x.date)+' — '+x.done.length+'/4').join(' · '):'Начни сегодня — здесь появятся последние выполнения.')+'</p><p class="hint">Галочки автоматически сохраняются на этом устройстве. При боли, головокружении или дискомфорте пропускай соответствующее движение.</p></div>';
+ document.getElementById('morning').innerHTML='<div class="morning-top"><span class="small" style="color:#99e6ca">УТРЕННИЙ РИТУАЛ · '+fmt(date)+'</span><h2>☀ '+morningSet(date).name+'</h2><p class="small" style="color:#bbd3cf;line-height:1.5">Сегодня 3 упражнения на мобильность и короткая планка · 5–7 минут. Завтра упражнения на мобильность сменятся. Без боли и нагрузки до отказа.</p><div class="morning-progress"><div style="width:'+(n*25)+'%"></div></div><b>'+n+' из 4 выполнено'+(n===4?' · Готово!':'')+'</b></div>'+list+'<div class="card"><b>История зарядки</b><p class="hint">'+(recent.length?recent.map(x=>fmt(x.date)+' — '+x.done.length+'/4').join(' · '):'Начни сегодня — здесь появятся последние выполнения.')+'</p><p class="hint">Галочки автоматически сохраняются на этом устройстве. При боли, головокружении или дискомфорте пропускай соответствующее движение.</p></div>';
  document.querySelectorAll('[data-morning-id]').forEach(el=>{el.onchange=()=>toggleMorning(el.dataset.morningId,el.checked)});
 }
 function toggleMorning(id,checked){
