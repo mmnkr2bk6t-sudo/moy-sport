@@ -91,7 +91,7 @@ body{width:100%;max-width:100%;overflow-x:clip}
 .weight-home-history{margin-top:13px}
 .weight-recent-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #324657;font-size:13px}
 @media(max-width:360px){.weight-home-fields{grid-template-columns:minmax(0,1fr)}}
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.19</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.20</span></header>
 <section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -155,7 +155,24 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('Не удалось сохранить данные в браузере. Скопируй резервную копию.');return false}}
+// Nutrition and Google Health can update the same localStorage key from their own pages.
+// Always refresh those externally managed collections before reading or writing the main state.
+function refreshExternalData(){
+ let stored;
+ try{stored=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return}
+ if(!stored||typeof stored!=='object'||!stored.templates)return;
+ for(const key of ['nutritionDays','googleHealthDays']){
+  if(Array.isArray(stored[key]))data[key]=stored[key];
+ }
+ if(stored.googleHealthLastSync)data.googleHealthLastSync=stored.googleHealthLastSync;
+}
+function save(){
+ try{
+  refreshExternalData();
+  localStorage.setItem(KEY,JSON.stringify(data));
+  return true;
+ }catch(e){alert('Не удалось сохранить данные в браузере. Скопируй резервную копию.');return false}
+}
 function today(){return new Date().toLocaleDateString('sv-SE')}
 function fmt(d){if(!d)return '';let a=d.split('-');return a.length===3?`${a[2]}.${a[1]}.${a[0]}`:d}
 function selectTab(t){if(t==='home'&&tab!=='home')currentMotivation=nextMotivation();tab=t;document.querySelectorAll('main section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));render();window.scrollTo(0,0)}
@@ -521,6 +538,7 @@ window.importHealthSteps=()=>{
 };
 
 function report(){
+ refreshExternalData();
  const t=['МОЙ СПОРТ — ПОЛНЫЙ ОТЧЁТ','Сформирован: '+fmt(today()),''];
  const cycle=cycleStatus();
  t.push('ЦИКЛ 4 СИЛОВЫХ: '+cycle.count+'/4'+(cycle.complete?' — полный':''));
@@ -835,7 +853,7 @@ function saveMeasures(ev){
 
 render();
 refreshCoachPlan();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshCoachPlan();currentMotivation=nextMotivation();if(tab==='home')renderHome()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshExternalData();refreshCoachPlan();currentMotivation=nextMotivation();if(tab==='home')renderHome();if(tab==='records')renderRecords()}});
 if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
  let refreshing=false;
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;location.reload()}});
