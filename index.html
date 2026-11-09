@@ -103,7 +103,44 @@ body{width:100%;max-width:100%;overflow-x:clip}
 .morning-home{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;background:#183931;color:#e9fff4;border:1px solid #37735e;border-radius:16px;padding:14px 16px;margin:12px 0;font:inherit;gap:10px}
 .morning-home strong{display:block;font-size:16px}.morning-home span{font-size:12px;color:#afd3c8}
 @media(max-width:365px){.morning-art{flex-basis:82px;width:82px;height:90px}.morning-exercise{gap:9px;padding:10px}.morning-info h3{font-size:14px}}
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.23</span></header>
+
+/* v3.24 — full mobile viewport containment, including newer tabs and morning routine */
+html,body{margin:0!important;padding-left:0!important;padding-right:0!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overscroll-behavior-x:none}
+body{position:relative;touch-action:pan-y}
+main.app{display:block;width:100%!important;max-width:740px!important;min-width:0!important;margin:0 auto!important;overflow-x:clip}
+main.app>section{width:100%;max-width:100%;min-width:0;overflow-x:clip}
+main.app>section>*,main.app form,main.app details,main.app .card,main.app .hero,main.app .morning-top,main.app .morning-exercise,main.app .morning-home,main.app .weight-home-card,main.app .nutrition-home-card,main.app .training-calendar,main.app .measure-reminder{max-width:100%;min-width:0;box-sizing:border-box}
+main.app .grid,main.app .measure-fields,main.app .private-grid,main.app .editgrid,main.app .weight-home-fields,main.app .training-week,main.app .training-month-grid,main.app .calendar-grid,main.app .calendar-week{width:100%;max-width:100%;min-width:0}
+main.app .grid>*,main.app .measure-fields>*,main.app .private-grid>*,main.app .weight-home-fields>*,main.app .row>*{min-width:0;max-width:100%}
+main.app .row.between{flex-wrap:wrap;row-gap:8px}
+main.app .row.between>*{overflow-wrap:anywhere}
+main.app input:not([type=checkbox]):not([type=radio]),main.app select,main.app textarea{max-width:100%;min-width:0;box-sizing:border-box}
+main.app input[type=date],main.app input[type=number],main.app input[type=text]{min-width:0}
+main.app .setrow input{width:100%;max-width:100%;min-width:0}
+main.app .setrow,main.app .sethead{width:100%;max-width:100%;min-width:0;grid-template-columns:22px repeat(3,minmax(0,1fr))}
+main.app .editgrid{grid-template-columns:minmax(0,1fr) minmax(65px,94px)}
+main.app .morning-exercise{align-items:flex-start}
+main.app .morning-info{min-width:0;overflow-wrap:anywhere}
+main.app .morning-art{max-width:34%;flex-shrink:1}
+main.app .titleline,main.app .section,main.app .hint,main.app .history-item,main.app .notice{overflow-wrap:anywhere}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;width:100%!important;max-width:100%!important;min-width:0;overflow:hidden;box-sizing:border-box}
+nav.tabs>div{display:grid;width:100%;max-width:740px;min-width:0;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+nav.tabs .tab{min-width:0;max-width:100%;padding:11px 0 10px;font-size:clamp(8px,2.25vw,11px);white-space:normal;word-break:normal;overflow-wrap:anywhere;line-height:1.12}
+nav.tabs .tab b{font-size:clamp(16px,4.4vw,20px);margin-bottom:5px}
+@media(max-width:430px){
+ main.app .measure-fields{grid-template-columns:minmax(0,1fr)}
+ main.app .weight-home-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+ main.app .card,main.app .measure-reminder{max-width:100%}
+ main.app input,main.app select,main.app textarea{font-size:16px}
+ main.app .training-cal-head{flex-wrap:wrap}
+ main.app .calendar-day,main.app .training-day{min-width:0}
+}
+@media(max-width:350px){
+ main.app .weight-home-fields{grid-template-columns:minmax(0,1fr)}
+ main.app .morning-art{flex-basis:66px;width:66px;height:80px}
+ nav.tabs .tab{font-size:8px}
+}
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.24</span></header>
 <section id="home"></section><section id="morning" class="hidden"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="morning"><b>☀</b>Зарядка</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
