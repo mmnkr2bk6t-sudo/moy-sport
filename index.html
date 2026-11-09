@@ -132,11 +132,11 @@ const defaults={
   {name:'Сгибание рук на бицепс',weight:'12',sets:2,goal:'10–15'},
   {name:'Трицепс на блоке',weight:'17.5',sets:2,goal:'10–15'}],
  'Lower B':[
-  {name:'Приседания со штангой',weight:'60',sets:3,goal:'8–10'},
-  {name:'Румынская тяга',weight:'60',sets:3,goal:'8–12'},
-  {name:'Жим ногами',weight:'100',sets:3,goal:'10–12'},
-  {name:'Сгибание ног в тренажёре',weight:'59',sets:3,goal:'10–15'},
-  {name:'Икры сидя',weight:'30',sets:3,goal:'12–15'}]
+  {name:'Приседания со штангой',weight:'45',sets:3,goal:'8–10'},
+  {name:'Румынская тяга',weight:'45',sets:2,goal:'10'},
+  {name:'Жим ногами',weight:'85',sets:2,goal:'12'},
+  {name:'Сгибание ног в тренажёре',weight:'25',sets:2,goal:'12–15'},
+  {name:'Икры сидя',weight:'30',sets:3,goal:'15'}]
 };
 const copy=x=>JSON.parse(JSON.stringify(x));
 function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
@@ -164,6 +164,30 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  };
  update(data.templates['Lower A']);
  if(data.drafts?.['Lower A'])update(data.drafts['Lower A'].exercises);
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// 2026-11-09: update the planned Lower B session after the first three workouts.
+// Preserve completed sessions and any sets already entered into a draft.
+(function applyLowerBReturnPlan(){
+ const marker='my_sport_lower_b_20261109_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const target=defaults['Lower B'];
+ const update=arr=>{
+  if(!Array.isArray(arr))return;
+  for(const p of target){
+   let ex=arr.find(x=>x.name===p.name);
+   if(!ex){arr.push(copy(p));continue;}
+   // Keep actual per-set weights/reps/RIR if the workout was already started.
+   const filled=Array.isArray(ex.reps)&&ex.reps.some(v=>String(v??'').trim()!=='');
+   if(filled)continue;
+   ex.weight=p.weight;ex.sets=p.sets;ex.goal=p.goal;
+   if(Array.isArray(ex.reps))ex.reps=Array(p.sets).fill('');
+   if(Array.isArray(ex.rirs))ex.rirs=Array(p.sets).fill('');
+   if(Array.isArray(ex.weights))ex.weights=Array(p.sets).fill(p.weight);
+  }
+ };
+ update(data.templates['Lower B']);
+ if(data.drafts?.['Lower B'])update(data.drafts['Lower B'].exercises);
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
