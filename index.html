@@ -140,7 +140,7 @@ nav.tabs .tab b{font-size:clamp(16px,4.4vw,20px);margin-bottom:5px}
  main.app .morning-art{flex-basis:66px;width:66px;height:80px}
  nav.tabs .tab{font-size:8px}
 }
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.24</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.25</span></header>
 <section id="home"></section><section id="morning" class="hidden"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="morning"><b>☀</b>Зарядка</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -914,16 +914,10 @@ window.importPrivate=async el=>{
 // Замеры тела: данные включены в обычную резервную копию спорта.
 if(!Array.isArray(data.measurements))data.measurements=[];
 const measureDefs=[
- ['waist','Талия','Самое узкое место, после спокойного выдоха'],
- ['navel','Живот','На уровне пупка'],
- ['chest','Грудь','По линии сосков, без вдоха'],
- ['hips','Ягодицы / бёдра','Самая широкая часть ягодиц'],
- ['shoulders','Плечи (обхват)','По самой широкой окружности плеч'],
- ['arm','Бицепс','Расслабленная рука, середина плеча'],
- ['forearm','Предплечье','Самое широкое место'],
- ['thigh','Бедро','По самой широкой части одного бедра'],
- ['calf','Голень','Самое широкое место'],
- ['neck','Шея','У основания шеи']
+ ['waist','Талия','Самое узкое место, после спокойного выдоха · главная цель <90 см'],
+ ['chest','Грудь','По линии сосков, без глубокого вдоха'],
+ ['hips','Бёдра / ягодицы','Самая широкая часть ягодиц'],
+ ['arm','Плечо (рука)','Одна и та же расслабленная рука, середина плеча']
 ];
 let measureChartKey='waist';
 function measureByDate(date){return data.measurements.find(x=>x.date===date)}
@@ -941,7 +935,7 @@ function renderMeasurements(){
    return `<div class="history-item row between"><div><b>${name}</b><div class="measure-delta">${change===null?'Нет предыдущего значения':(change>0?'+':'')+change.toFixed(1)+' см к прошлому замеру'}</div></div><b>${hasA?n.toFixed(1)+' см':'—'}</b></div>`
  }).join('');
  const history=recent.map(x=>`<div class="history-item row between"><div><b>${fmt(x.date)}</b><div class="hint">${measureDefs.filter(([k])=>x[k]!==undefined&&x[k]!=='').map(([k,label])=>label+': '+x[k]).join(' · ')||'Нет данных'}</div></div><button class="btn ghost" type="button" onclick="loadMeasureDate('${x.date}')">Изменить</button></div>`).join('');
- document.getElementById('measurements').innerHTML=`<h2 class="titleline">📏 Замеры тела</h2><p class="muted small">Измеряй тело раз в две недели утром до завтрака, до тренировки, одной и той же лентой. Заполнять всё необязательно.</p>
+ document.getElementById('measurements').innerHTML=`<h2 class="titleline">📏 Замеры тела</h2><p class="muted small">Всего 4 замера, примерно 2 минуты раз в две недели. Измеряй утром до завтрака, одной лентой, без напряжения мышц. Можно заполнить не все поля.</p>
  <div class="measure-reminder"><div class="row between"><b>Следующий замер</b><span class="measure-badge">Каждые 14 дней</span></div><div style="font-size:21px;font-weight:800;margin-top:8px">${last?(due?'Пора измериться':fmt(next)):'Сделай первый замер'}</div><div class="hint">${last?'Последний замер: '+fmt(last.date)+' ('+since+' дн. назад).':'После первой записи появится дата следующего измерения.'} Напоминание ChatGPT настроено отдельно.</div></div>
  <div class="card"><form id="measureForm"><div class="label">Дата измерений</div><input type="date" name="date" max="${d}" value="${d}" onchange="loadMeasureDate(this.value)" style="width:100%;margin-bottom:12px"><div class="measure-fields">${fields}</div><div class="label" style="margin-top:12px">Комментарий (необязательно)</div><textarea name="note" placeholder="После тренировки, отёки, замер другой лентой…">${esc(saved?.note||'')}</textarea><div class="saved-entry" id="measureSaved">${saved?'✓ Замеры за '+fmt(d)+' сохранены. Их можно исправить.':'За сегодня замеров пока нет'}</div><button type="submit" class="btn full">${saved?'Обновить':'Сохранить'} замеры</button><p class="status" id="measureStatus" aria-live="polite"></p></form></div>
  <h3 class="section">📈 Динамика</h3><div class="card"><label class="label" for="measureMetric">Показатель для графика</label><select id="measureMetric" class="measure-select" onchange="changeMeasureMetric(this.value)">${measureDefs.map(([k,v])=>`<option value="${k}" ${k===measureChartKey?'selected':''}>${v}</option>`).join('')}</select><div id="measureGraph">${measureChart(measureChartKey)}</div></div>
@@ -975,8 +969,8 @@ window.loadMeasureDate=date=>{
 function saveMeasures(ev){
  ev.preventDefault();const form=ev.currentTarget,date=form.elements.date.value;
  if(!validMeasureDate(date)){document.getElementById('measureStatus').textContent='Выбери корректную дату';return}
- const item={date,note:form.elements.note.value.trim()};let valid=0;
- for(const [key] of measureDefs){const val=form.elements[key].value;if(val!==''){
+ const item={...(measureByDate(date)||{}),date,note:form.elements.note.value.trim()};let valid=0;
+ for(const [key] of measureDefs){const val=form.elements[key].value;if(val==='')delete item[key];if(val!==''){
    const n=Number(val);if(!Number.isFinite(n)||n<1||n>300){document.getElementById('measureStatus').textContent='Проверь значения: только сантиметры';return}item[key]=Number(n.toFixed(1));valid++;
  }}
  if(!valid){document.getElementById('measureStatus').textContent='Заполни хотя бы один показатель';return}
