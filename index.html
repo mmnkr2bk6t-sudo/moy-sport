@@ -123,7 +123,7 @@ nav.tabs .tab b{font-size:clamp(16px,4.4vw,20px);margin-bottom:5px}
  main.app .weight-home-fields{grid-template-columns:minmax(0,1fr)}
  nav.tabs .tab{font-size:8px}
 }
-</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.26</span></header>
+</style></head><body><main class="app"><header class="top"><div><div class="brand">МОЙ СПОРТ <span style="color:#75d8bc">●</span></div><div class="muted small">Силовые · Активность · Шаги</div></div><span class="pill">Версия 3.27</span></header>
 <section id="home"></section><section id="train" class="hidden"></section><section id="activity" class="hidden"></section><section id="records" class="hidden"></section><section id="measurements" class="hidden"></section><section id="private" class="hidden"></section>
 <div class="footer">Данные остаются на этом устройстве. Личные и спортивные записи хранятся локально без дополнительного пароля. Делай резервные копии.</div></main>
 <nav class="tabs"><div><button class="tab active" data-tab="home"><b>⌂</b>Главная</button><button class="tab" data-tab="train"><b>▤</b>Силовые</button><button class="tab" data-tab="activity"><b>◉</b>Активность</button><button class="tab" data-tab="records"><b>↗</b>История</button><button class="tab" data-tab="measurements"><b>📏</b>Замеры</button><button class="tab" data-tab="private"><b>♡</b>Личное</button></div></nav>
@@ -230,7 +230,7 @@ function save(){
 }
 function today(){return new Date().toLocaleDateString('sv-SE')}
 function fmt(d){if(!d)return '';let a=d.split('-');return a.length===3?`${a[2]}.${a[1]}.${a[0]}`:d}
-function selectTab(t){if(t==='home'&&tab!=='home')currentMotivation=nextMotivation();tab=t;document.querySelectorAll('main section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));render();window.scrollTo(0,0)}
+function selectTab(t){if(t==='home'&&tab!=='home')currentMotivation=nextMotivation();if(t==='train'&&tab!=='train')setWorkoutDateToToday();tab=t;document.querySelectorAll('main section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>selectTab(b.dataset.tab));
 function render(){renderHome();renderTrain();renderActivity();renderRecords();renderMeasurements();renderPrivate()}
 
@@ -345,7 +345,10 @@ function ensureSetWeights(ex){
 }
 function setWeightAt(ex,j){return String(ex.setWeights?.[j]??ex.weight??'')}
 function getDraft(){let name=data.current;if(!data.drafts[name])data.drafts[name]={date:today(),exercises:data.templates[name].map(e=>({...copy(e),reps:Array(e.sets).fill(''),rirs:Array(e.sets).fill(''),comment:''})),comment:''};data.drafts[name].exercises.forEach(ensureSetWeights);return data.drafts[name]}
-function setCurrent(n){data.current=n;save();renderTrain()}
+// Opening a workout always starts with the phone's current local date.
+// Only the date changes: entered exercises, weights, repetitions and RIR remain in the draft.
+function setWorkoutDateToToday(){const d=getDraft(),currentDate=today();if(d.date!==currentDate){d.date=currentDate;save()}}
+function setCurrent(n){data.current=n;setWorkoutDateToToday();save();renderTrain()}
 
 function goalRange(goal){const m=String(goal||'').match(/(\d+)\s*[–—-]\s*(\d+)/);return m?[+m[1],+m[2]]:[8,12]}
 function exerciseHistory(name,date){const norm=x=>String(x||'').toLocaleLowerCase('ru-RU').trim();return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
