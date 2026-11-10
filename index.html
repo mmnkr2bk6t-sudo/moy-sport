@@ -132,31 +132,31 @@ nav.tabs .tab b{font-size:clamp(16px,4.4vw,20px);margin-bottom:5px}
 const KEY='my_sport_v1';
 const defaults={
  'Upper A':[
-  {name:'Жим гантелей на наклонной скамье',weight:'',sets:3,goal:'8–12'},
-  {name:'Тяга верхнего блока',weight:'55',sets:3,goal:'8–12'},
-  {name:'Горизонтальная тяга блока',weight:'50',sets:3,goal:'8–12'},
-  {name:'Жим плеч в тренажёре',weight:'32',sets:2,goal:'8–12'},
-  {name:'Разгибание рук с канатом',weight:'17.5',sets:2,goal:'10–15'},
-  {name:'Подъём гантелей на бицепс',weight:'12',sets:2,goal:'10–15'}],
+  {name:"Жим гантелей на наклонной скамье",weight:"22",sets:3,goal:"8–10"},
+  {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
+  {name:"Горизонтальная тяга блока",weight:"50",sets:3,goal:"10–12"},
+  {name:"Жим плеч в тренажёре",weight:"32",sets:2,goal:"10–12"},
+  {name:"Разгибание рук с канатом",weight:"15",sets:2,goal:"12–15"},
+  {name:"Подъём гантелей на бицепс",weight:"12",sets:2,goal:"10–12"}],
  'Lower A':[
-  {name:'Приседания со штангой',weight:'45',sets:3,goal:'8'},
-  {name:'Румынская тяга',weight:'45',sets:2,goal:'10'},
-  {name:'Жим ногами',weight:'85',sets:2,goal:'12'},
-  {name:'Икры сидя',weight:'27.5',sets:3,goal:'12–15'}],
+  {name:"Приседания со штангой",weight:"45",sets:3,goal:"10"},
+  {name:"Румынская тяга",weight:"45",sets:2,goal:"10–12"},
+  {name:"Жим ногами",weight:"85",sets:2,goal:"12"},
+  {name:"Икры сидя",weight:"35",sets:3,goal:"12–15"}],
  'Upper B':[
-  {name:'Жим гантелей лёжа',weight:'',sets:3,goal:'8–12'},
-  {name:'Тяга верхнего блока',weight:'55',sets:3,goal:'8–12'},
-  {name:'Тяга горизонтального блока',weight:'50',sets:3,goal:'8–12'},
-  {name:'Жим в грудном тренажёре',weight:'',sets:2,goal:'8–12'},
-  {name:'Разведения гантелей в стороны',weight:'7',sets:2,goal:'12–15'},
-  {name:'Сгибание рук на бицепс',weight:'12',sets:2,goal:'10–15'},
-  {name:'Трицепс на блоке',weight:'17.5',sets:2,goal:'10–15'}],
+  {name:"Жим гантелей лёжа",weight:"22",sets:3,goal:"8–10"},
+  {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
+  {name:"Тяга горизонтального блока",weight:"50",sets:3,goal:"10–12"},
+  {name:"Жим в грудном тренажёре",weight:"59",sets:2,goal:"10–12"},
+  {name:"Разведения гантелей в стороны",weight:"7",sets:2,goal:"15"},
+  {name:"Сгибание рук на бицепс",weight:"12",sets:2,goal:"10–12"},
+  {name:"Трицепс на блоке",weight:"17.5",sets:2,goal:"12–15"}],
  'Lower B':[
-  {name:'Приседания со штангой',weight:'45',sets:3,goal:'8–10'},
-  {name:'Румынская тяга',weight:'45',sets:2,goal:'10'},
-  {name:'Жим ногами',weight:'85',sets:2,goal:'12'},
-  {name:'Сгибание ног в тренажёре',weight:'25',sets:2,goal:'12–15'},
-  {name:'Икры сидя',weight:'30',sets:3,goal:'15'}]
+  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"8–10"},
+  {name:"Румынская тяга",weight:"45",sets:2,goal:"10–12"},
+  {name:"Жим ногами",weight:"85",sets:2,goal:"12"},
+  {name:"Сгибание ног в тренажёре",weight:"55",sets:2,goal:"12–15"},
+  {name:"Икры сидя",weight:"35",sets:3,goal:"12–15"}]
 };
 const copy=x=>JSON.parse(JSON.stringify(x));
 function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
@@ -208,6 +208,22 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  };
  update(data.templates['Lower B']);
  if(data.drafts?.['Lower B'])update(data.drafts['Lower B'].exercises);
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// 2026-11-10: cycle 1 complete; apply updated plan to unstarted drafts only.
+// Never edit recorded workouts or partially entered draft sets.
+(function applyCycle2Plan(){
+ const marker='my_sport_cycle2_20261110_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ for(const name of Object.keys(defaults)){
+  data.templates[name]=copy(defaults[name]);
+  const draft=data.drafts?.[name];
+  if(!draft||!Array.isArray(draft.exercises))continue;
+  const started=draft.exercises.some(ex=>Array.isArray(ex.reps)&&ex.reps.some(v=>String(v??'').trim()!==''));
+  if(started)continue;
+  draft.exercises=copy(defaults[name]).map(ex=>({...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),setWeights:Array(ex.sets).fill(ex.weight),comment:''}));
+  draft.date=(new Date()).toLocaleDateString('en-CA');
+ }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
