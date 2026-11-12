@@ -139,10 +139,10 @@ const defaults={
   {name:"Разгибание рук с канатом",weight:"15",sets:2,goal:"12–15"},
   {name:"Подъём гантелей на бицепс",weight:"12",sets:2,goal:"10–12"}],
  'Lower A':[
-  {name:"Приседания со штангой",weight:"45",sets:3,goal:"10"},
-  {name:"Румынская тяга",weight:"45",sets:2,goal:"10–12"},
-  {name:"Жим ногами",weight:"85",sets:2,goal:"12"},
-  {name:"Икры сидя",weight:"35",sets:3,goal:"12–15"}],
+  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"8–10"},
+  {name:"Румынская тяга",weight:"47.5",sets:2,goal:"10"},
+  {name:"Жим ногами",weight:"90",sets:2,goal:"10–12"},
+  {name:"Икры сидя",weight:"35",sets:3,goal:"15"}],
  'Upper B':[
   {name:"Жим гантелей лёжа",weight:"22",sets:3,goal:"8–10"},
   {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
@@ -152,11 +152,11 @@ const defaults={
   {name:"Сгибание рук на бицепс",weight:"12",sets:2,goal:"10–12"},
   {name:"Трицепс на блоке",weight:"17.5",sets:2,goal:"12–15"}],
  'Lower B':[
-  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"8–10"},
-  {name:"Румынская тяга",weight:"45",sets:2,goal:"10–12"},
-  {name:"Жим ногами",weight:"85",sets:2,goal:"12"},
+  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"10"},
+  {name:"Румынская тяга",weight:"47.5",sets:2,goal:"10"},
+  {name:"Жим ногами",weight:"90",sets:2,goal:"10–12"},
   {name:"Сгибание ног в тренажёре",weight:"55",sets:2,goal:"12–15"},
-  {name:"Икры сидя",weight:"35",sets:3,goal:"12–15"}]
+  {name:"Икры сидя",weight:"35",sets:3,goal:"15"}]
 };
 const copy=x=>JSON.parse(JSON.stringify(x));
 function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
@@ -223,6 +223,33 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
   if(started)continue;
   draft.exercises=copy(defaults[name]).map(ex=>({...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),setWeights:Array(ex.sets).fill(ex.weight),comment:''}));
   draft.date=(new Date()).toLocaleDateString('en-CA');
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// 2026-11-12: second-cycle Lower A/B coordinated progression.
+// Both plans reflect the shared 06.11 Lower A and 10.11 Lower B results.
+// Never modify completed workouts, or an in-progress draft with entered results.
+// Future cycles still require review/approval rather than automatic blind increases.
+(function applyCoordinatedLowerCycle2(){
+ const marker='my_sport_cycle2_lower_pair_20261112_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ for(const name of ['Lower A','Lower B']){
+  const target=defaults[name];
+  if(!data.templates)data.templates={};
+  data.templates[name]=copy(target);
+  const draft=data.drafts?.[name];
+  if(!draft||!Array.isArray(draft.exercises))continue;
+  const started=draft.exercises.some(ex=>
+   (Array.isArray(ex.reps)&&ex.reps.some(v=>String(v??'').trim()!==''))||
+   (Array.isArray(ex.rirs)&&ex.rirs.some(v=>String(v??'').trim()!==''))||
+   Boolean(String(ex.comment??'').trim())
+  );
+  if(started)continue;
+  draft.exercises=copy(target).map(ex=>({
+   ...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),
+   setWeights:Array(ex.sets).fill(ex.weight),comment:''
+  }));
+  // Keep the user's selected date; date is updated to today on entering training.
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
