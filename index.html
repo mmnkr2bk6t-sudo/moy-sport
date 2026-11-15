@@ -135,7 +135,7 @@ const defaults={
   {name:"Жим гантелей на наклонной скамье",weight:"22",sets:3,goal:"10–12"},
   {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
   {name:"Горизонтальная тяга блока",weight:"52.5",sets:3,goal:"10–12"},
-  {name:"Разведения гантелей в стороны",weight:"5",sets:3,goal:"12–15"},
+  {name:"Разведения гантелей в стороны",weight:"7",sets:3,goal:"12–15"},
   {name:"Разгибание рук с канатом",weight:"15",sets:3,goal:"12–15"},
   {name:"Подъём гантелей на бицепс",weight:"12",sets:2,goal:"10–12"}],
  'Lower A':[
@@ -274,6 +274,28 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
    ...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),
    setWeights:Array(ex.sets).fill(ex.weight),comment:''
   }));
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// 2026-11-15: align lateral raises to 7 kg in both upper days.
+(function alignLateralRaiseWeights(){
+ const marker='my_sport_lateral_7kg_20261115_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const name='Upper A',exercise='Разведения гантелей в стороны';
+ const template=data.templates?.[name]?.find(x=>x.name===exercise);
+ if(template)template.weight='7';
+ const draft=data.drafts?.[name];
+ if(draft&&Array.isArray(draft.exercises)){
+  const ex=draft.exercises.find(x=>x.name===exercise);
+  if(ex){
+   const started=(Array.isArray(ex.reps)&&ex.reps.some(v=>String(v??'').trim()!==''))||
+     (Array.isArray(ex.rirs)&&ex.rirs.some(v=>String(v??'').trim()!==''))||
+     Boolean(String(ex.comment??'').trim());
+   if(!started){
+    ex.weight='7';
+    if(Array.isArray(ex.setWeights))ex.setWeights=ex.setWeights.map(()=>'7');
+   }
+  }
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
