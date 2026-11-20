@@ -139,7 +139,7 @@ const defaults={
   {name:"Разгибание рук с канатом",weight:"15",sets:3,goal:"12–15"},
   {name:"Подъём гантелей на бицепс",weight:"12",sets:2,goal:"10–12"}],
  'Lower A':[
-  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"10"},
+  {name:"Приседания со штангой",weight:"50",sets:3,goal:"8–10"},
   {name:"Румынская тяга",weight:"47.5",sets:3,goal:"10"},
   {name:"Жим ногами",weight:"90",sets:3,goal:"10–12"},
   {name:"Сгибание ног",weight:"59",sets:2,goal:"10–12"},
@@ -318,6 +318,29 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
    ...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),
    setWeights:Array(ex.sets).fill(ex.weight),comment:''
   }));
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// Apply the approved squat progression to Lower A.
+(function applyLowerASquatProgression(){
+ const marker='my_sport_lower_a_squat_50_20261120_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const name='Lower A';
+ const target=defaults[name][0];
+ const template=data.templates[name].find(ex=>ex.name===target.name);
+ if(template)Object.assign(template,target);
+ const draft=data.drafts?.[name];
+ const squat=draft?.exercises?.find(ex=>ex.name===target.name);
+ const started=squat&&(
+  [squat.reps,squat.rirs].some(values=>(values||[]).some(v=>String(v??'').trim()!==''))||
+  String(squat.comment??'').trim()||
+  (squat.setWeights||[]).some(v=>String(v??'').trim()!==''&&String(v)!==String(squat.weight))
+ );
+ if(squat&&!started){
+  Object.assign(squat,target,{
+   reps:Array(target.sets).fill(''),rirs:Array(target.sets).fill(''),
+   setWeights:Array(target.sets).fill(target.weight)
+  });
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
