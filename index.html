@@ -132,9 +132,9 @@ nav.tabs .tab b{font-size:clamp(16px,4.4vw,20px);margin-bottom:5px}
 const KEY='my_sport_v1';
 const defaults={
  'Upper A':[
-  {name:"Жим гантелей на наклонной скамье",weight:"22",sets:3,goal:"10–12"},
+  {name:"Жим гантелей на наклонной скамье",weight:"24",sets:3,goal:"8–10"},
   {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
-  {name:"Горизонтальная тяга блока",weight:"52.5",sets:3,goal:"10–12"},
+  {name:"Горизонтальная тяга блока",weight:"52.5",sets:4,goal:"10–12"},
   {name:"Разведения гантелей в стороны",weight:"7",sets:3,goal:"12–15"},
   {name:"Разгибание рук с канатом",weight:"15",sets:3,goal:"12–15"},
   {name:"Подъём гантелей на бицепс",weight:"12",sets:2,goal:"10–12"}],
@@ -146,9 +146,9 @@ const defaults={
   {name:"Разгибание ног",weight:"59",sets:2,goal:"10–12"},
   {name:"Икры сидя",weight:"35",sets:3,goal:"15"}],
  'Upper B':[
-  {name:"Жим гантелей лёжа",weight:"22",sets:3,goal:"8–10"},
+  {name:"Жим гантелей лёжа",weight:"22",sets:4,goal:"8–10"},
   {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
-  {name:"Тяга горизонтального блока",weight:"50",sets:3,goal:"10–12"},
+  {name:"Тяга горизонтального блока",weight:"52.5",sets:3,goal:"10–12"},
   {name:"Жим в грудном тренажёре",weight:"41",sets:3,goal:"10–12"},
   {name:"Разведения гантелей в стороны",weight:"7",sets:2,goal:"12–15"},
   {name:"Сгибание рук на бицепс",weight:"12",sets:2,goal:"10–12"},
@@ -366,6 +366,28 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
+// Apply the new Upper A/B targets to existing templates and unused draft exercises.
+(function applyUpperVolumeProgression(){
+ const marker='my_sport_upper_volume_20261120_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const changed=[["Upper A","Жим гантелей на наклонной скамье"],["Upper A","Горизонтальная тяга блока"],["Upper B","Жим гантелей лёжа"],["Upper B","Тяга горизонтального блока"]];
+ for(const [day,name] of changed){
+  const target=defaults[day].find(ex=>ex.name===name);
+  const template=data.templates[day]?.find(ex=>ex.name===name);
+  if(template)Object.assign(template,target);
+  const exercise=data.drafts?.[day]?.exercises?.find(ex=>ex.name===name);
+  if(!exercise)continue;
+  const started=[exercise.reps,exercise.rirs].some(values=>(values||[]).some(v=>String(v??'').trim()!==''))||
+   String(exercise.comment??'').trim()||
+   (exercise.setWeights||[]).some(v=>String(v??'').trim()!==''&&String(v)!==String(exercise.weight));
+  if(started)continue;
+  Object.assign(exercise,target,{
+   reps:Array(target.sets).fill(''),rirs:Array(target.sets).fill(''),
+   setWeights:Array(target.sets).fill(target.weight)
+  });
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Nutrition can update the shared localStorage key from its own page.
 // Always refresh those externally managed collections before reading or writing the main state.
@@ -507,7 +529,7 @@ function setWorkoutDateToToday(){const d=getDraft(),currentDate=today();if(d.dat
 function setCurrent(n){data.current=n;setWorkoutDateToToday();save();renderTrain()}
 
 function goalRange(goal){const m=String(goal||'').match(/(\d+)\s*[–—-]\s*(\d+)/);const single=String(goal||'').trim().match(/^\d+$/);return m?[+m[1],+m[2]]:single?[+single[0],+single[0]]:[8,12]}
-function exerciseHistory(name,date){const norm=x=>String(x||'').toLocaleLowerCase('ru-RU').trim();return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
+function exerciseHistory(name,date){const norm=x=>String(x||'').toLocaleLowerCase('ru-RU').trim().replace(/^горизонтальная тяга блока$/,'тяга горизонтального блока');return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
 function progressionAdvice(ex,date){
  const h=exerciseHistory(ex.name,date),last=h[0];
  if(!last)return {type:'first',label:'Первая тренировка',description:'Пока нет истории. Подбери комфортный вес с запасом 3–4 повторения.',weight:null};
@@ -529,7 +551,7 @@ function progressionAdvice(ex,date){
  else if(minRir<2){type='hold';description='Маленький запас повторений. Сохрани вес и прибавляй повторения, не доходя до отказа.'}
  else if(minRep>=hi&&minRir>=2&&maxRir<=5){
   const isDumbbell=/гантел|разведени/i.test(ex.name);
-  const step=isDumbbell?2:/жим ногами/i.test(ex.name)?5:2.5;
+  const step=/разведения гантелей в стороны/i.test(ex.name)?1:isDumbbell?2:/жим ногами/i.test(ex.name)?5:2.5;
   type='up';weightNext=weight+step;description='Все подходы достигли верхней границы при RIR ≥2. Следующий раз: прибавь '+step+' кг и вернись к нижней границе повторений.';
  }else{type='reps';description='Сохрани вес и постарайся прибавить 1–2 повтора до верхней границы диапазона.'}
  const label=type==='up'?'↑ Прибавить вес':type==='return'?'↘ После перерыва':type==='caution'?'⚠ Без прибавки':type==='reps'?'→ Добавить повторы':'→ Закрепить вес';
@@ -544,11 +566,18 @@ function adviceMarkup(ex,i,date,workout){
  const name=workout||data.current;
  const coach=coachAdviceMarkup(ex,i,name);
  if(!coach)return localAdviceMarkup(ex,i,date);
- if(!['Lower A','Lower B'].includes(name)||!/^(Приседания со штангой|Румынская тяга|Жим ногами)$/i.test(ex.name))return coach;
+ const isUpper=name==='Upper A'||name==='Upper B';
+ const isSharedLower=/^(Приседания со штангой|Румынская тяга|Жим ногами)$/i.test(ex.name);
+ if(!isUpper&&!isSharedLower)return coach;
  const advice=progressionAdvice(ex,date);
- const plannedWeight=coachRecommendation(name,ex.name).weight;
- if(advice.type!=='up'||advice.weight<plannedWeight)return coach;
- return localAdviceMarkup(ex,advice.weight===plannedWeight?null:i,date,advice)+coach;
+ const planned=coachRecommendation(name,ex.name);
+ if(advice.type!=='up'||advice.weight<planned.weight)return coach;
+ if(isUpper){
+  const [,upperGoal]=goalRange(planned.reps);
+  const completed=advice.previous.reps.filter(v=>Number(v)>=upperGoal).length;
+  if(completed<planned.sets)return coach;
+ }
+ return localAdviceMarkup(ex,advice.weight===planned.weight?null:i,date,advice)+coach;
 }
 window.applyAdvice=(i,weight)=>{if(!(Number(weight)>0))return;const d=getDraft();if(!d.exercises[i])return;d.exercises[i].weight=String(weight);d.exercises[i].setWeights=Array(d.exercises[i].reps.length).fill(String(weight));save();renderTrain()};
 
