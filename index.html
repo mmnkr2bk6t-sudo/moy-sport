@@ -154,11 +154,11 @@ const defaults={
   {name:"Сгибание рук на бицепс",weight:"12",sets:2,goal:"10–12"},
   {name:"Трицепс на блоке",weight:"17.5",sets:2,goal:"12–15"}],
  'Lower B':[
-  {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"8–10"},
-  {name:"Румынская тяга",weight:"47.5",sets:3,goal:"10"},
-  {name:"Жим ногами",weight:"90",sets:3,goal:"10–12"},
-  {name:"Сгибание ног в тренажёре",weight:"59",sets:2,goal:"10–12"},
-  {name:"Икры сидя",weight:"35",sets:3,goal:"15"}]
+  {name:"Приседания со штангой",weight:"52.5",sets:3,goal:"8–10"},
+  {name:"Румынская тяга",weight:"52.5",sets:3,goal:"8–10"},
+  {name:"Жим ногами",weight:"105",sets:3,goal:"10–12"},
+  {name:"Сгибание ног в тренажёре",weight:"59",sets:2,goal:"12–15"},
+  {name:"Икры сидя",weight:"40",sets:3,goal:"15"}]
 };
 const copy=x=>JSON.parse(JSON.stringify(x));
 function initial(){return {templates:copy(defaults),workouts:[],pool:[],steps:[],bodyweight:[],measurements:[],drafts:{},current:'Upper A'}}
@@ -344,6 +344,28 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
+// Update Lower B after the recorded 20 November Lower A session.
+(function applyLowerBProgression(){
+ const marker='my_sport_lower_b_after_20261120_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ const name='Lower B';
+ const draft=data.drafts?.[name];
+ for(const target of defaults[name]){
+  const template=data.templates[name]?.find(ex=>ex.name===target.name);
+  if(template)Object.assign(template,target);
+  const exercise=draft?.exercises?.find(ex=>ex.name===target.name);
+  if(!exercise)continue;
+  const started=[exercise.reps,exercise.rirs].some(values=>(values||[]).some(v=>String(v??'').trim()!==''))||
+   String(exercise.comment??'').trim()||
+   (exercise.setWeights||[]).some(v=>String(v??'').trim()!==''&&String(v)!==String(exercise.weight));
+  if(started)continue;
+  Object.assign(exercise,target,{
+   reps:Array(target.sets).fill(''),rirs:Array(target.sets).fill(''),
+   setWeights:Array(target.sets).fill(target.weight)
+  });
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Nutrition can update the shared localStorage key from its own page.
 // Always refresh those externally managed collections before reading or writing the main state.
@@ -484,7 +506,7 @@ function getDraft(){let name=data.current;if(!data.drafts[name])data.drafts[name
 function setWorkoutDateToToday(){const d=getDraft(),currentDate=today();if(d.date!==currentDate){d.date=currentDate;save()}}
 function setCurrent(n){data.current=n;setWorkoutDateToToday();save();renderTrain()}
 
-function goalRange(goal){const m=String(goal||'').match(/(\d+)\s*[–—-]\s*(\d+)/);return m?[+m[1],+m[2]]:[8,12]}
+function goalRange(goal){const m=String(goal||'').match(/(\d+)\s*[–—-]\s*(\d+)/);const single=String(goal||'').trim().match(/^\d+$/);return m?[+m[1],+m[2]]:single?[+single[0],+single[0]]:[8,12]}
 function exerciseHistory(name,date){const norm=x=>String(x||'').toLocaleLowerCase('ru-RU').trim();return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
 function progressionAdvice(ex,date){
  const h=exerciseHistory(ex.name,date),last=h[0];
@@ -507,20 +529,27 @@ function progressionAdvice(ex,date){
  else if(minRir<2){type='hold';description='Маленький запас повторений. Сохрани вес и прибавляй повторения, не доходя до отказа.'}
  else if(minRep>=hi&&minRir>=2&&maxRir<=5){
   const isDumbbell=/гантел|разведени/i.test(ex.name);
-  const isHeavyLeg=/присед|румынск|жим ног/i.test(ex.name);
-  const step=isDumbbell?2:isHeavyLeg?5:2.5;
+  const step=isDumbbell?2:/жим ногами/i.test(ex.name)?5:2.5;
   type='up';weightNext=weight+step;description='Все подходы достигли верхней границы при RIR ≥2. Следующий раз: прибавь '+step+' кг и вернись к нижней границе повторений.';
  }else{type='reps';description='Сохрани вес и постарайся прибавить 1–2 повтора до верхней границы диапазона.'}
  const label=type==='up'?'↑ Прибавить вес':type==='return'?'↘ После перерыва':type==='caution'?'⚠ Без прибавки':type==='reps'?'→ Добавить повторы':'→ Закрепить вес';
  return {type,label,weight:weightNext,description,previous:last};
 }
-function localAdviceMarkup(ex,i,date){
- const a=progressionAdvice(ex,date);
+function localAdviceMarkup(ex,i,date,a=progressionAdvice(ex,date)){
  if(!a.previous)return '<div class="progress-advice"><b>Первая тренировка</b><div class="hint">'+esc(a.description)+'</div></div>';
  const p=a.previous,n=Number(a.weight).toLocaleString('ru-RU'),reps=p.reps.filter(v=>v!=='').join(' / ');
  return '<div class="progress-advice"><b>'+esc(a.label)+' · '+n+' кг</b><div class="hint">Основание: '+fmt(p.date)+' · '+(p.setWeights&&new Set(p.setWeights).size>1?p.setWeights.join(' / '):Number(p.weight).toLocaleString('ru-RU'))+' кг · '+esc(reps)+' повт.</div><div class="hint">'+esc(a.description)+'</div>'+(i===null?'':'<button type="button" class="btn secondary" style="margin-top:9px" onclick="applyAdvice('+i+','+a.weight+')">Применить '+n+' кг</button>')+'</div>';
 }
-function adviceMarkup(ex,i,date,workout){return coachAdviceMarkup(ex,i,workout||data.current)||localAdviceMarkup(ex,i,date)}
+function adviceMarkup(ex,i,date,workout){
+ const name=workout||data.current;
+ const coach=coachAdviceMarkup(ex,i,name);
+ if(!coach)return localAdviceMarkup(ex,i,date);
+ if(!['Lower A','Lower B'].includes(name)||!/^(Приседания со штангой|Румынская тяга|Жим ногами)$/i.test(ex.name))return coach;
+ const advice=progressionAdvice(ex,date);
+ const plannedWeight=coachRecommendation(name,ex.name).weight;
+ if(advice.type!=='up'||advice.weight<plannedWeight)return coach;
+ return localAdviceMarkup(ex,advice.weight===plannedWeight?null:i,date,advice)+coach;
+}
 window.applyAdvice=(i,weight)=>{if(!(Number(weight)>0))return;const d=getDraft();if(!d.exercises[i])return;d.exercises[i].weight=String(weight);d.exercises[i].setWeights=Array(d.exercises[i].reps.length).fill(String(weight));save();renderTrain()};
 
 
