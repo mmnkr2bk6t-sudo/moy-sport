@@ -149,15 +149,15 @@ const defaults={
   {name:"Жим гантелей лёжа",weight:"22",sets:3,goal:"8–10"},
   {name:"Тяга верхнего блока",weight:"55",sets:3,goal:"10–12"},
   {name:"Тяга горизонтального блока",weight:"50",sets:3,goal:"10–12"},
-  {name:"Жим в грудном тренажёре",weight:"59",sets:3,goal:"10–12"},
+  {name:"Жим в грудном тренажёре",weight:"41",sets:3,goal:"10–12"},
   {name:"Разведения гантелей в стороны",weight:"7",sets:2,goal:"12–15"},
   {name:"Сгибание рук на бицепс",weight:"12",sets:2,goal:"10–12"},
   {name:"Трицепс на блоке",weight:"17.5",sets:2,goal:"12–15"}],
  'Lower B':[
   {name:"Приседания со штангой",weight:"47.5",sets:3,goal:"8–10"},
   {name:"Румынская тяга",weight:"47.5",sets:3,goal:"10"},
-  {name:"Жим ногами",weight:"90",sets:2,goal:"10–12"},
-  {name:"Сгибание ног в тренажёре",weight:"59",sets:3,goal:"10–12"},
+  {name:"Жим ногами",weight:"90",sets:3,goal:"10–12"},
+  {name:"Сгибание ног в тренажёре",weight:"59",sets:2,goal:"10–12"},
   {name:"Икры сидя",weight:"35",sets:3,goal:"15"}]
 };
 const copy=x=>JSON.parse(JSON.stringify(x));
@@ -296,6 +296,28 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
     if(Array.isArray(ex.setWeights))ex.setWeights=ex.setWeights.map(()=>'7');
    }
   }
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
+// Apply the reviewed 20 November plan to existing templates and unused drafts.
+(function applyNovember20Plan(){
+ const marker='my_sport_plan_20261120_v1';
+ if(localStorage.getItem(marker)==='1')return;
+ for(const [name, target] of Object.entries(defaults)){
+  data.templates[name]=copy(target);
+  const draft=data.drafts?.[name];
+  if(!Array.isArray(draft?.exercises))continue;
+  const started=String(draft.comment??'').trim()||draft.exercises.some(ex=>
+   (ex.reps||[]).some(v=>String(v??'').trim()!=='')||
+   (ex.rirs||[]).some(v=>String(v??'').trim()!=='')||
+   String(ex.comment??'').trim()||
+   (ex.setWeights||[]).some(v=>String(v??'').trim()!==''&&String(v)!==String(ex.weight))
+  );
+  if(started)continue;
+  draft.exercises=target.map(ex=>({
+   ...ex,reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),
+   setWeights:Array(ex.sets).fill(ex.weight),comment:''
+  }));
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
