@@ -388,6 +388,52 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||initial();if(!data.temp
  }
  try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
 })();
+const barbellRow={name:'Тяга штанги в наклоне',weight:'',sets:3,goal:'8–10'};
+const splitSquat={name:'Болгарские выпады',weight:'0',sets:2,goal:'8–10'};
+const chestPress={name:'Жим в грудном тренажёре',weight:'41',sets:2,goal:'10–12'};
+const isChestPress=name=>/^(chest press|жим в грудном тренаж[её]ре)$/i.test(String(name).trim());
+function insertPlannedExercise(exercises,target,after,isReplaced){
+ const existing=exercises.find(ex=>ex.name===target.name);
+ const updated=exercises.filter(ex=>ex.name!==target.name&&!isReplaced(ex));
+ const previous=updated.findIndex(ex=>ex.name===after);
+ updated.splice(previous<0?updated.length:previous+1,0,{...target,weight:existing?.weight??target.weight});
+ return updated;
+}
+function november23Plan(day,exercises){
+ if(day==='Upper A'){
+  const updated=exercises.filter(ex=>!isChestPress(ex.name));
+  return [...updated,{...chestPress}];
+ }
+ if(day==='Upper B'){
+  return insertPlannedExercise(exercises,barbellRow,'Жим гантелей лёжа',
+   ex=>/^(тяга горизонтального блока|горизонтальная тяга блока)$/i.test(ex.name));
+ }
+ return insertPlannedExercise(exercises,splitSquat,'Румынская тяга',()=>false)
+  .map(ex=>ex.name==='Жим ногами'?{...ex,sets:Math.min(ex.sets,2)}:ex);
+}
+function draftExercise(ex){
+ return {...copy(ex),reps:Array(ex.sets).fill(''),rirs:Array(ex.sets).fill(''),
+  setWeights:Array(ex.sets).fill(ex.weight),comment:''};
+}
+(function applyNovember23Plan(){
+ const marker='my_sport_plan_20261123_v1';
+ const days=['Upper A','Upper B','Lower B'];
+ for(const day of days)defaults[day]=november23Plan(day,defaults[day]);
+ if(localStorage.getItem(marker)==='1')return;
+ for(const day of days){
+  data.templates[day]=november23Plan(day,data.templates[day]??defaults[day]);
+  const draft=data.drafts?.[day];
+  if(!Array.isArray(draft?.exercises))continue;
+  const hasEntry=value=>String(value??'').trim()!=='';
+  const started=hasEntry(draft.comment)||draft.exercises.some(ex=>
+   (ex.reps||[]).some(hasEntry)||(ex.rirs||[]).some(hasEntry)||hasEntry(ex.comment)||
+   (ex.setWeights||[]).some(value=>hasEntry(value)&&String(value)!==String(ex.weight))
+  );
+  if(started)draft.applyNovember23PlanOnFinish=true;
+  else draft.exercises=november23Plan(day,draft.exercises).map(draftExercise);
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(marker,'1')}catch(e){}
+})();
 let tab='home';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Nutrition can update the shared localStorage key from its own page.
 // Always refresh those externally managed collections before reading or writing the main state.
@@ -522,14 +568,14 @@ function ensureSetWeights(ex){
  return ex;
 }
 function setWeightAt(ex,j){return String(ex.setWeights?.[j]??ex.weight??'')}
-function getDraft(){let name=data.current;if(!data.drafts[name])data.drafts[name]={date:today(),exercises:data.templates[name].map(e=>({...copy(e),reps:Array(e.sets).fill(''),rirs:Array(e.sets).fill(''),comment:''})),comment:''};data.drafts[name].exercises.forEach(ensureSetWeights);return data.drafts[name]}
+function getDraft(){let name=data.current;if(!data.drafts[name])data.drafts[name]={date:today(),exercises:data.templates[name].map(draftExercise),comment:''};data.drafts[name].exercises.forEach(ensureSetWeights);return data.drafts[name]}
 // Opening a workout always starts with the phone's current local date.
 // Only the date changes: entered exercises, weights, repetitions and RIR remain in the draft.
 function setWorkoutDateToToday(){const d=getDraft(),currentDate=today();if(d.date!==currentDate){d.date=currentDate;save()}}
 function setCurrent(n){data.current=n;setWorkoutDateToToday();save();renderTrain()}
 
 function goalRange(goal){const m=String(goal||'').match(/(\d+)\s*[–—-]\s*(\d+)/);const single=String(goal||'').trim().match(/^\d+$/);return m?[+m[1],+m[2]]:single?[+single[0],+single[0]]:[8,12]}
-function exerciseHistory(name,date){const norm=x=>String(x||'').toLocaleLowerCase('ru-RU').trim().replace(/^горизонтальная тяга блока$/,'тяга горизонтального блока');return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
+function exerciseHistory(name,date){const norm=x=>isChestPress(x)?chestPress.name.toLocaleLowerCase('ru-RU'):String(x||'').toLocaleLowerCase('ru-RU').trim().replace(/^горизонтальная тяга блока$/,'тяга горизонтального блока');return data.workouts.filter(w=>!date||w.date<=date).flatMap(w=>(w.exercises||[]).filter(e=>norm(e.name)===norm(name)).map(e=>({...e,date:w.date,workoutComment:w.comment||''}))).filter(e=>Number(e.weight)>0&&Array.isArray(e.reps)&&e.reps.some(x=>x!==''&&Number(x)>0)).sort((a,b)=>b.date.localeCompare(a.date))}
 function progressionAdvice(ex,date){
  const h=exerciseHistory(ex.name,date),last=h[0];
  if(!last)return {type:'first',label:'Первая тренировка',description:'Пока нет истории. Подбери комфортный вес с запасом 3–4 повторения.',weight:null};
@@ -616,14 +662,23 @@ function coachAdviceMarkup(ex,i,workout){
  return '<div class="progress-advice coach-advice"><b>★ Персональный план · '+w+' кг</b><div class="hint">'+esc(p.sets?String(p.sets)+' подхода(ов) · ':'')+esc(p.reps)+' повторений'+(p.rir?' · RIR '+esc(p.rir):'')+'</div><div class="hint">'+esc(p.reason)+'</div>'+(i===null?'':'<button type="button" class="btn secondary" style="margin-top:9px" onclick="applyAdvice('+i+','+p.weight+')">Применить '+w+' кг</button>')+'</div>';
 }
 
-function renderTrain(){const name=data.current,d=getDraft();$('#train').innerHTML=`<h2 class="titleline">Силовая тренировка</h2><div class="muted small">Выбери шаблон и введи вес каждого подхода, повторения и RIR. Персональные рекомендации обновляются после разбора полного 4-дневного цикла.</div>${coachPlan?.recommendations?.length?'<div class="notice" style="margin-top:12px">★ Персональный план: '+esc(coachPlan.updated||'актуальный')+'. Рекомендации отмечены звёздочкой; доступна ручная корректировка.</div>':''}<div class="grid" style="margin-top:13px">${Object.keys(data.templates).map(n=>`<button class="btn ${n===name?'':'secondary'}" onclick="setCurrent('${n}')">${n}</button>`).join('')}</div>${d.date<today()?'<div class="notice">Черновик создан '+fmt(d.date)+'. Если тренируешься сегодня, измени дату в поле ниже перед сохранением.</div>':''}<div class="card"><div class="row between"><div><b>${name}</b><div class="muted small">${d.exercises.length} упражнений · веса можно менять</div></div><input aria-label="Дата тренировки" type="date" value="${esc(d.date)}" onchange="changeDate(this.value)" style="max-width:155px"></div>${d.exercises.map((ex,i)=>`<div class="exercise"><div class="ex-top"><div class="exercise-title">${i+1}. ${esc(ex.name)}</div><button class="btn ghost" onclick="editExercise(${i})" aria-label="Изменить упражнение">✎</button></div>${adviceMarkup(ex,i,d.date)}<div class="row" style="margin-top:9px"><div class="grow"><div class="label">Базовый вес, кг</div><input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(ex.weight)}" placeholder="Укажи" onchange="setWeight(${i},this.value)"></div><div class="grow"><div class="label">Цель</div><div class="pill" style="display:inline-block;margin:8px 0">${esc(ex.goal)} повт.</div></div></div><div class="sethead"><div>№</div><div>Вес, кг</div><div>Повт.</div><div>RIR</div></div>${ex.reps.map((v,j)=>`<div class="setrow"><div class="num">${j+1}</div><input aria-label="Вес ${i+1}-${j+1}" type="number" inputmode="decimal" step="0.5" min="0" value="${esc(setWeightAt(ex,j))}" onchange="setSetWeight(${i},${j},this.value)"><input aria-label="Повторения ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="100" placeholder="—" value="${esc(v)}" onchange="setRep(${i},${j},this.value)"><input aria-label="Запас ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="10" placeholder="—" value="${esc(ex.rirs[j])}" onchange="setRir(${i},${j},this.value)"></div>`).join('')}<textarea placeholder="Комментарий: легко, дискомфорт, техника…" aria-label="Комментарий к упражнению" oninput="setExComment(${i},this.value)">${esc(ex.comment)}</textarea><div class="row between"><span class="hint">RIR — сколько повторений осталось в запасе</span><button class="btn ghost" onclick="addSet(${i})">+ подход</button></div></div>`).join('')}<div class="label">Общий комментарий к тренировке</div><textarea placeholder="Самочувствие, восстановление, настроение" oninput="setComment(this.value)">${esc(d.comment)}</textarea><div class="tools"><button class="btn grow" onclick="finishWorkout()">✓ Завершить и сохранить</button><button class="btn secondary" onclick="resetDraft()">Сбросить черновик</button></div><div class="status">Все изменения черновика сохраняются автоматически на устройстве.</div></div><details class="card"><summary>Настроить упражнения и шаблон</summary><div class="hint">Рабочие веса из сентября — ориентиры, не обязательные нагрузки после перерыва. Изменения упражнения можно сохранить в шаблон.</div><button class="btn secondary full" onclick="addExercise()">+ Добавить упражнение</button></details>`}
+function trainingHint(ex){
+ if(ex.name===barbellRow.name)return '<div class="hint">RIR 2–3. Подбери вес на разминке. Прибавляй после 3×10 с устойчивым положением корпуса.</div>';
+ if(ex.name===splitSquat.name)return '<div class="hint">RIR около 3. Один подход включает обе ноги. Начни с собственного веса, добавляй гантели после 2×10 на каждую ногу.</div>';
+ return '';
+}
+function renderTrain(){const name=data.current,d=getDraft();$('#train').innerHTML=`<h2 class="titleline">Силовая тренировка</h2><div class="muted small">Выбери шаблон и введи вес каждого подхода, повторения и RIR. Персональные рекомендации обновляются после разбора полного 4-дневного цикла.</div>${coachPlan?.recommendations?.length?'<div class="notice" style="margin-top:12px">★ Персональный план: '+esc(coachPlan.updated||'актуальный')+'. Рекомендации отмечены звёздочкой; доступна ручная корректировка.</div>':''}<div class="grid" style="margin-top:13px">${Object.keys(data.templates).map(n=>`<button class="btn ${n===name?'':'secondary'}" onclick="setCurrent('${n}')">${n}</button>`).join('')}</div>${d.date<today()?'<div class="notice">Черновик создан '+fmt(d.date)+'. Если тренируешься сегодня, измени дату в поле ниже перед сохранением.</div>':''}<div class="card"><div class="row between"><div><b>${name}</b><div class="muted small">${d.exercises.length} упражнений · веса можно менять</div></div><input aria-label="Дата тренировки" type="date" value="${esc(d.date)}" onchange="changeDate(this.value)" style="max-width:155px"></div>${d.exercises.map((ex,i)=>`<div class="exercise"><div class="ex-top"><div class="exercise-title">${i+1}. ${esc(ex.name)}</div><button class="btn ghost" onclick="editExercise(${i})" aria-label="Изменить упражнение">✎</button></div>${adviceMarkup(ex,i,d.date)}<div class="row" style="margin-top:9px"><div class="grow"><div class="label">Базовый вес, кг</div><input type="number" inputmode="decimal" step="0.5" min="0" value="${esc(ex.weight)}" placeholder="Укажи" onchange="setWeight(${i},this.value)"></div><div class="grow"><div class="label">Цель</div><div class="pill" style="display:inline-block;margin:8px 0">${esc(ex.goal)} повт.${ex.name===splitSquat.name?' на ногу':''}</div></div></div>${trainingHint(ex)}<div class="sethead"><div>№</div><div>Вес, кг</div><div>Повт.</div><div>RIR</div></div>${ex.reps.map((v,j)=>`<div class="setrow"><div class="num">${j+1}</div><input aria-label="Вес ${i+1}-${j+1}" type="number" inputmode="decimal" step="0.5" min="0" value="${esc(setWeightAt(ex,j))}" onchange="setSetWeight(${i},${j},this.value)"><input aria-label="Повторения ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="100" placeholder="—" value="${esc(v)}" onchange="setRep(${i},${j},this.value)"><input aria-label="Запас ${i+1}-${j+1}" type="number" inputmode="numeric" min="0" max="10" placeholder="—" value="${esc(ex.rirs[j])}" onchange="setRir(${i},${j},this.value)"></div>`).join('')}<textarea placeholder="Комментарий: легко, дискомфорт, техника…" aria-label="Комментарий к упражнению" oninput="setExComment(${i},this.value)">${esc(ex.comment)}</textarea><div class="row between"><span class="hint">RIR — сколько повторений осталось в запасе</span><button class="btn ghost" onclick="addSet(${i})">+ подход</button></div></div>`).join('')}<div class="label">Общий комментарий к тренировке</div><textarea placeholder="Самочувствие, восстановление, настроение" oninput="setComment(this.value)">${esc(d.comment)}</textarea><div class="tools"><button class="btn grow" onclick="finishWorkout()">✓ Завершить и сохранить</button><button class="btn secondary" onclick="resetDraft()">Сбросить черновик</button></div><div class="status">Все изменения черновика сохраняются автоматически на устройстве.</div></div><details class="card"><summary>Настроить упражнения и шаблон</summary><div class="hint">Рабочие веса из сентября — ориентиры, не обязательные нагрузки после перерыва. Изменения упражнения можно сохранить в шаблон.</div><button class="btn secondary full" onclick="addExercise()">+ Добавить упражнение</button></details>`}
 window.setCurrent=setCurrent;window.changeDate=v=>{getDraft().date=v;save()};window.setWeight=(i,v)=>{const e=getDraft().exercises[i],old=String(e.weight??'');e.weight=v;e.setWeights=e.setWeights.map(w=>String(w)===old?String(v):w);save();renderTrain()};
 window.setSetWeight=(i,j,v)=>{getDraft().exercises[i].setWeights[j]=v;save()};window.setRep=(i,j,v)=>{getDraft().exercises[i].reps[j]=v;save()};window.setRir=(i,j,v)=>{getDraft().exercises[i].rirs[j]=v;save()};window.setExComment=(i,v)=>{getDraft().exercises[i].comment=v;save()};window.setComment=v=>{getDraft().comment=v;save()};
 window.addSet=i=>{let e=getDraft().exercises[i];e.reps.push('');e.rirs.push('');e.setWeights.push(String(e.setWeights.at(-1)??e.weight??''));e.sets++;save();renderTrain()};
 window.editExercise=i=>{let d=getDraft(),e=d.exercises[i];let name=prompt('Название упражнения:',e.name);if(name===null)return;if(!name.trim())return alert('Название не может быть пустым');let sets=prompt('Число подходов:',e.sets);if(sets===null)return;sets=Number(sets);if(!Number.isInteger(sets)||sets<1||sets>8)return alert('От 1 до 8 подходов');let goal=prompt('Диапазон повторений:',e.goal);if(goal===null)return;e.name=name.trim();e.goal=goal;e.sets=sets;e.reps=Array.from({length:sets},(_,j)=>e.reps[j]||'');e.rirs=Array.from({length:sets},(_,j)=>e.rirs[j]||'');e.setWeights=Array.from({length:sets},(_,j)=>e.setWeights?.[j]??e.weight??'');if(confirm('Сохранить изменение также в шаблон на следующие тренировки?')){data.templates[data.current][i]={name:e.name,weight:e.weight,sets:e.sets,goal:e.goal}}save();renderTrain()};
 window.addExercise=()=>{let n=prompt('Название нового упражнения:');if(!n||!n.trim())return;let e={name:n.trim(),weight:'',sets:3,goal:'8–12',reps:['','',''],rirs:['','',''],setWeights:['','',''],comment:''};getDraft().exercises.push(e);if(confirm('Добавить его и в постоянный шаблон?'))data.templates[data.current].push({name:e.name,weight:'',sets:3,goal:'8–12'});save();renderTrain()};
 window.resetDraft=()=>{if(!confirm('Очистить незавершённую тренировку?'))return;delete data.drafts[data.current];save();renderTrain()};
-window.finishWorkout=()=>{let d=getDraft();if(!d.exercises.some(e=>e.reps.some(v=>v!==''))&&!confirm('Повторения не заполнены. Всё равно сохранить?'))return;data.workouts.unshift({id:Date.now(),name:data.current,...copy(d)});data.templates[data.current]=d.exercises.map(({name,weight,sets,goal})=>({name,weight,sets,goal}));delete data.drafts[data.current];save();selectTab('records')};
+window.finishWorkout=()=>{let d=getDraft();if(!d.exercises.some(e=>e.reps.some(v=>v!==''))&&!confirm('Повторения не заполнены. Всё равно сохранить?'))return;const {applyNovember23PlanOnFinish,...workout}=d;
+ const day=data.current;
+ data.workouts.unshift({id:Date.now(),name:day,...copy(workout)});
+ const template=d.exercises.map(({name,weight,sets,goal})=>({name,weight,sets,goal}));
+ data.templates[day]=applyNovember23PlanOnFinish?november23Plan(day,template):template;delete data.drafts[data.current];save();selectTab('records')};
 function activityEntry(kind,date){return (data[kind]||[]).find(x=>x.date===date)}
 function activityCard(kind,date){
  const v=activityEntry(kind,date);
